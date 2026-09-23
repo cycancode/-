@@ -1,0 +1,899 @@
+<title>Sprout 原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F3F4F1;--surface:#FFFFFF;--surface-2:#F8F9F6;--ink:#141B18;--ink-2:#3F4A46;--muted:#6B7772;--line:#DEE2DC;--line-2:#EBEEE9;
+  --accent:#2E4BD1;--accent-ink:#FFFFFF;--accent-soft:#E6EAFB;
+  --ok:#2B7A47;--ok-soft:#E3F1E7;--warn:#98600F;--warn-soft:#FBEFD9;--bad:#B23A26;--bad-soft:#F8E3DE;--idle:#7C8782;--idle-soft:#ECEEEA;
+  --shadow:0 1px 2px rgba(20,27,24,.06),0 4px 16px rgba(20,27,24,.06);
+  --f-display:"Bricolage Grotesque","Noto Sans SC",system-ui,sans-serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0E1113;--surface:#161A1D;--surface-2:#1B2023;--ink:#E5E9E6;--ink-2:#BAC3BF;--muted:#8B9691;--line:#2A3034;--line-2:#22282B;
+  --accent:#8298FF;--accent-ink:#0E1113;--accent-soft:#1F2647;
+  --ok:#6CC08A;--ok-soft:#17291E;--warn:#E0A94A;--warn-soft:#2E2413;--bad:#EE7E68;--bad-soft:#321A15;--idle:#7D8883;--idle-soft:#22282B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1113;--surface:#161A1D;--surface-2:#1B2023;--ink:#E5E9E6;--ink-2:#BAC3BF;--muted:#8B9691;--line:#2A3034;--line-2:#22282B;
+  --accent:#8298FF;--accent-ink:#0E1113;--accent-soft:#1F2647;
+  --ok:#6CC08A;--ok-soft:#17291E;--warn:#E0A94A;--warn-soft:#2E2413;--bad:#EE7E68;--bad-soft:#321A15;--idle:#7D8883;--idle-soft:#22282B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:24px;font-weight:700}
+h2{font-size:17px;font-weight:700}
+h3{font-size:14px;font-weight:700}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.muted{color:var(--muted)}
+
+/* shell */
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.side{border-right:1px solid var(--line);background:var(--surface-2);padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding-inline:6px}
+.brand-mark{width:26px;height:26px;border-radius:7px;background:var(--accent);display:grid;place-items:center}
+.brand-mark svg{display:block}
+.brand b{font-family:var(--f-display);font-size:19px;letter-spacing:-.01em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav-label{padding:0 8px 4px;font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.nav button{all:unset;display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;color:var(--ink-2)}
+.nav button:hover{background:var(--line-2)}
+.nav button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);font-weight:500}
+.nav button:focus-visible{outline:2px solid var(--accent)}
+.nav .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:10px;background:var(--idle-soft);color:var(--ink-2)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding-inline:8px;display:flex;flex-direction:column;gap:8px}
+.theme-btn{all:unset;cursor:pointer;font-size:12px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+
+main{padding-block:24px 60px;padding-inline:28px;min-width:0}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+/* generic */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.btn{white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--line-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill i{font-style:normal;font-family:var(--f-mono);font-size:11px}
+.s-ok{background:var(--ok-soft);color:var(--ok)}
+.s-warn{background:var(--warn-soft);color:var(--warn)}
+.s-bad{background:var(--bad-soft);color:var(--bad)}
+.s-run{background:var(--accent-soft);color:var(--accent)}
+.s-idle{background:var(--idle-soft);color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:2px;background:var(--surface-2);gap:2px;flex-wrap:wrap}
+.seg button{all:unset;cursor:pointer;padding:4px 10px;border-radius:7px;font-size:12.5px;color:var(--ink-2)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);font-weight:500}
+.seg button:focus-visible{outline:2px solid var(--accent)}
+.tag{font-size:11px;padding:1px 6px;border-radius:5px;border:1px dashed var(--warn);color:var(--warn)}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;resize:vertical}
+textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+
+/* project header */
+.phead{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.phead .meta{color:var(--muted);font-size:13px;margin-top:4px}
+.auto{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.auto small{color:var(--muted);font-size:12px}
+
+.waiting{display:flex;gap:10px;flex-wrap:wrap}
+.wchip{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);flex:1 1 140px;min-width:0}
+.wchip:hover{border-color:var(--ink-2)}
+.wchip:focus-visible{outline:2px solid var(--accent)}
+.wchip .n{font-family:var(--f-display);font-size:22px;font-weight:700;line-height:1}
+.wchip .l{font-size:12.5px;color:var(--ink-2);line-height:1.3}
+.wchip .l b{display:block;color:var(--ink);font-weight:500}
+.wchip.zero{opacity:.5}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{all:unset;cursor:pointer;padding:9px 12px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--accent)}
+
+/* tree */
+.split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+.tree{padding:8px 0}
+.trow{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 14px 7px 0;cursor:pointer;border-left:3px solid transparent;position:relative}
+.trow:hover{background:var(--surface-2)}
+.trow.sel{background:var(--accent-soft);border-left-color:var(--accent)}
+.trow .caret{all:unset;width:18px;height:18px;display:grid;place-items:center;color:var(--muted);border-radius:4px;font-size:10px}
+.trow .caret:hover{background:var(--line)}
+.trow .caret.none{visibility:hidden}
+.lv{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.ttl{min-width:0;display:flex;flex-direction:column;gap:3px}
+.ttl span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow.l0 .t{font-family:var(--f-display);font-weight:700;font-size:15.5px;white-space:normal}
+.trow.l1 .t{font-weight:700}
+.trow.cut .t{text-decoration:line-through;color:var(--muted)}
+.tright{display:flex;align-items:center;gap:8px}
+.tcost{font-size:12px;color:var(--muted);min-width:48px;text-align:right}
+.bar{height:4px;background:var(--line-2);border-radius:4px;overflow:hidden;display:flex;gap:2px;max-width:220px}
+.bar span{display:block;height:100%}
+.bar .b-ok{background:var(--ok)}.bar .b-run{background:var(--accent)}.bar .b-warn{background:var(--warn)}.bar .b-bad{background:var(--bad)}
+
+.gate{padding:14px 16px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-color:var(--warn);background:linear-gradient(0deg,var(--warn-soft),var(--warn-soft)) padding-box}
+.gate .g-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 280px}
+.gate .g-t b{font-weight:700}
+
+/* detail */
+.detail{position:sticky;top:16px;padding:18px;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 32px);overflow:auto}
+.dsec{display:flex;flex-direction:column;gap:8px}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.kv div{display:flex;flex-direction:column}
+.kv dt{font-size:12px;color:var(--muted)}
+.kv dd{margin:0;font-weight:500}
+.crit{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.crit li{display:grid;grid-template-columns:18px 1fr;gap:6px;align-items:start}
+.crit .ck{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;margin-top:3px}
+.crit .ck.y{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.reason{padding:10px 12px;border-radius:8px;font-size:13px}
+.ev{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.tests{font-family:var(--f-mono);font-size:12px;display:flex;flex-direction:column;gap:3px;flex:1 1 200px;min-width:0}
+.tests div{display:flex;gap:6px}
+.tests .p{color:var(--ok)}
+.log{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:2px;color:var(--ink-2);overflow-x:auto}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:9px 12px;display:flex;justify-content:space-between;gap:10px;background:var(--surface)}
+.opt:hover{border-color:var(--accent)}
+.opt:focus-visible{outline:2px solid var(--accent)}
+.opt small{color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12.5px;background:var(--surface-2)}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip:focus-visible{outline:2px solid var(--accent)}
+.proposal{border:1px solid var(--accent);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--accent-soft)}
+.diff{font-family:var(--f-mono);font-size:12px;display:flex;flex-direction:column;gap:2px}
+.diff .a{color:var(--ok)}.diff .d{color:var(--bad)}.diff .m{color:var(--warn)}
+hr.sep{border:none;border-top:1px solid var(--line);margin:0}
+
+/* mock screens */
+.shot{width:150px;flex:none;border-radius:16px;border:5px solid var(--ink);background:#FAFAF7;color:#1b1b1b;padding:10px 8px;font-size:10px;display:flex;flex-direction:column;gap:6px;font-family:var(--f-body);line-height:1.35}
+.shot .sh{font-weight:700;font-size:11.5px}
+.shot .fld{background:#EFEFEA;border-radius:6px;padding:5px 6px;display:flex;justify-content:space-between}
+.shot .cta{background:#2E4BD1;color:#fff;border-radius:6px;text-align:center;padding:5px;font-weight:700}
+.shot .tl{display:flex;gap:6px;align-items:center;border-bottom:1px solid #e3e3dd;padding-bottom:4px}
+.shot .tl b{font-family:var(--f-mono);font-size:9.5px;color:#555}
+.shot .qr{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;width:70px;align-self:center}
+.shot .qr span{aspect-ratio:1;background:#1b1b1b}
+.shot .qr span.o{background:transparent}
+.shot-cap{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+/* stats */
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.tile{padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.tile .v{font-family:var(--f-display);font-size:24px;font-weight:700;line-height:1.1}
+.tile .v small{font-size:13px;color:var(--muted);font-weight:500}
+.tile .s{font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+.chartbox{padding:16px;display:flex;flex-direction:column;gap:10px;position:relative}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:16px;height:0;border-top:2px solid var(--accent)}
+.legend i.dash{border-top:2px dashed var(--muted)}
+.legend i.band{height:8px;border:none;background:var(--accent-soft)}
+.hbars{display:flex;flex-direction:column;gap:10px}
+.hb{display:grid;grid-template-columns:120px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:13px}
+.hb .track{height:14px;background:var(--line-2);border-radius:0 4px 4px 0;position:relative}
+.hb .fill{height:100%;background:var(--accent);border-radius:0 4px 4px 0}
+.hb .val{text-align:right}
+.hb .sub{grid-column:2/4;font-size:11.5px;color:var(--muted);margin-top:-6px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+table.t td.r,table.t th.r{text-align:right}
+.tscroll{overflow-x:auto}
+
+/* context & models */
+.ctx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.doc{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.doc pre{margin:0;font-family:var(--f-mono);font-size:12.5px;white-space:pre-wrap;color:var(--ink-2);line-height:1.6}
+.dlog{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.dlog li{display:grid;grid-template-columns:62px 1fr;gap:10px;font-size:13px}
+.dlog time{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);padding-top:2px}
+.agents{display:flex;flex-direction:column;gap:8px}
+.agent{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:9px}
+.agent .grow{flex:1}
+select{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 8px;max-width:100%}
+
+/* inbox */
+.capture{padding:16px;display:flex;flex-direction:column;gap:10px}
+.cap-row{display:flex;gap:10px;align-items:stretch}
+.cap-row textarea{min-height:64px;flex:1}
+.mic{width:64px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);display:grid;place-items:center;flex:none}
+.mic.rec{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.wave{display:flex;gap:3px;align-items:center;height:18px}
+.wave span{width:3px;background:currentColor;border-radius:2px;animation:w 0.9s ease-in-out infinite}
+.wave span:nth-child(2){animation-delay:.15s}.wave span:nth-child(3){animation-delay:.3s}.wave span:nth-child(4){animation-delay:.45s}
+@keyframes w{0%,100%{height:4px}50%{height:18px}}
+.ideas{display:flex;flex-direction:column;gap:10px}
+.idea{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.idea .src{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.idea q{quotes:none;font-size:15px}
+.triage{border-top:1px dashed var(--line);padding-top:10px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.triage .ai{font-size:13px;color:var(--ink-2);flex:1 1 260px}
+.triage .ai b{color:var(--ink)}
+.digest{padding:14px 16px;background:var(--surface-2)}
+
+/* clarify */
+.clar{padding:20px;display:flex;flex-direction:column;gap:18px;max-width:720px}
+.q{display:flex;flex-direction:column;gap:8px}
+.q .qo{display:flex;gap:8px;flex-wrap:wrap}
+.q .qo button{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--surface)}
+.q .qo button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:500}
+.q .qo button:focus-visible{outline:2px solid var(--accent)}
+
+/* iOS */
+.phones{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+.phone{width:270px;max-width:100%;border-radius:38px;border:9px solid #111;background:var(--bg);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.p-status{display:flex;justify-content:space-between;padding:8px 18px 4px;font-size:11.5px;font-weight:700;font-family:var(--f-mono)}
+.p-body{padding:8px 14px 16px;display:flex;flex-direction:column;gap:10px;min-height:470px}
+.p-title{font-family:var(--f-display);font-size:22px;font-weight:700}
+.bigmic{all:unset;cursor:pointer;width:112px;height:112px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;align-self:center;margin-block:18px 6px;box-shadow:0 0 0 10px var(--accent-soft)}
+.bigmic.rec{background:var(--bad);box-shadow:0 0 0 10px var(--bad-soft)}
+.bigmic:focus-visible{outline:3px solid var(--ink)}
+.p-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.p-item small{color:var(--muted);font-size:11.5px}
+.p-cap{text-align:center;color:var(--muted);font-size:12px}
+.p-label{text-align:center;font-size:12px;color:var(--muted)}
+
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;font-size:13px;box-shadow:var(--shadow);max-width:calc(100% - 32px);transition:opacity .2s}
+.demo-note{font-size:12px;color:var(--muted)}
+
+@media (max-width:1000px){
+  .split,.grid2,.ctx{grid-template-columns:minmax(0,1fr)}
+  .detail{position:static;max-height:none}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:12px 16px;gap:10px}
+  .nav{flex-direction:row;flex-wrap:wrap;gap:4px}
+  .nav-label{display:none}
+  .nav button{padding:5px 9px}
+  .side-foot{flex-direction:row;justify-content:space-between;padding:0}
+  main{padding-inline:16px;padding-block:16px 48px}
+  .auto{align-items:flex-start}
+  .hb{grid-template-columns:96px minmax(0,1fr) 56px}
+  .tcost{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <main><div class="wrap" id="main"></div></main>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+/* ---------- data (示例数据) ---------- */
+const S = {
+  view: 'project', pid: 'p1', tab: 'tree', sel: '2.1.1', autopilot: 'L1',
+  collapsed: new Set(['1']), proposal: null, rejecting: false, recording: false, phoneRec: false,
+  strategy: 'balanced', draft: ''
+};
+
+const STATUS = {
+  done:     {t:'已完成', c:'s-ok',  i:'✓'},
+  review:   {t:'待验收', c:'s-warn',i:'◉'},
+  question: {t:'待澄清', c:'s-warn',i:'?'},
+  approval: {t:'等批准', c:'s-warn',i:'$'},
+  stuck:    {t:'AI 卡住',c:'s-bad', i:'!'},
+  running:  {t:'执行中', c:'s-run', i:'▶'},
+  queued:   {t:'排队中', c:'s-run', i:'…'},
+  ready:    {t:'就绪',   c:'s-idle',i:'○'},
+  draft:    {t:'待拆解', c:'s-idle',i:'◌'},
+  cut:      {t:'已搁置', c:'s-idle',i:'–'}
+};
+
+const MODELS = ['Claude Opus 5.5','Claude Sonnet 5','Claude Haiku 4.5','Codex'];
+
+function N(id, parent, title, o={}) { return Object.assign({id, parent, title, status:'draft'}, o); }
+
+const projects = {
+  p1: {
+    id:'p1', name:'PawLog 喂猫记录', color:'var(--accent)', phase:'building',
+    repo:'github.com/mia/pawlog', agents:['Claude Code','Codex'], budget:60,
+    nodes:[
+      N('0',null,'让养猫的家庭一起记录喂食，并在该喂的时候提醒',{assume:'假设：先做 iOS，后端用 Supabase'}),
+      N('1','0','一个人能记录喂食'),
+      N('1.1','1','喂食记录的增删改查'),
+      N('1.1.1','1.1','数据模型与 API',{status:'done',model:'Claude Sonnet 5',agent:'Claude Code',cost:1.84,tok:212,time:'18 分钟',
+        crit:['POST /feedings 可以创建记录','按天分页查询','只有记录者本人能删除','份量必须大于 0'],
+        ev:{type:'test',pass:24,total:24,tests:['creates feeding record','paginates by day','rejects delete by non-owner','validates portion > 0']}}),
+      N('1.1.2','1.1','记录喂食页面',{status:'done',model:'Claude Sonnet 5',agent:'Claude Code',cost:2.10,tok:248,time:'22 分钟',
+        crit:['两步之内完成一次记录','可以选择是哪只猫','默认填入当前时间'],
+        ev:{type:'shot',screen:'record',cap:'iPhone 16 模拟器截图 · Playwright 自动截取'}}),
+      N('1.2','1','喂食历史'),
+      N('1.2.1','1.2','按天分组的时间线',{status:'done',model:'Claude Haiku 4.5',agent:'Claude Code',cost:1.36,tok:260,time:'15 分钟',
+        crit:['按天分组，最新的在上面','显示记录人和份量'],
+        ev:{type:'shot',screen:'timeline',cap:'时间线页面截图'}}),
+      N('2','0','家庭成员共享记录'),
+      N('2.1','2','邀请家人'),
+      N('2.1.1','2.1','邀请链接与加入流程',{status:'review',model:'Claude Sonnet 5',agent:'Claude Code',cost:2.95,tok:331,time:'27 分钟',
+        crit:['生成 7 天有效的邀请链接','对方打开链接后加入同一个家庭','链接可以撤销'],
+        ev:{type:'both',screen:'invite',cap:'邀请页截图',pass:11,total:11,tests:['creates invite with 7d expiry','joins household via token','revoked token is rejected']}}),
+      N('2.2','2','多台设备实时同步'),
+      N('2.2.1','2.2','订阅喂食记录的变更',{status:'running',model:'Codex',agent:'Codex',cost:2.40,tok:318,time:'已运行 21 分钟',progress:62,est:'$0.8–1.2 · 约 10 分钟',
+        crit:['A 手机记录后 2 秒内出现在 B 手机上','断网重连后自动补齐'],
+        log:['09:41 读取 Context Pack（BRIEF, DECISIONS, TREE）','09:43 新增 useFeedingsRealtime hook','09:52 写入 6 个测试，4 个通过','09:58 正在修复重连后重复订阅的问题…']}),
+      N('2.2.2','2.2','两台设备同时离线写入的冲突处理',{status:'stuck',model:'Claude Sonnet 5',agent:'Claude Code',cost:4.35,tok:497,time:'3 次尝试 · 41 分钟',est:'$1.5–3.0',
+        crit:['两台设备离线各记一次，联网后不会出现重复记录','冲突时保留两条并提示用户'],
+        stuck:'测试连续失败 3 次：两台设备同时离线写入同一餐时，联网后出现重复记录。AI 判断根因是设备时钟不一致，导致去重失效。',
+        fixes:[{t:'改用服务端时间戳和去重键',s:'推荐 · 预计 +$1.20'},{t:'升级到 Claude Opus 5.5 重新尝试',s:'预计 +$2.80'},{t:'第一版先不支持离线写入',s:'节省约 $2，节点改为搁置'}]}),
+      N('2.3','2','成员权限'),
+      N('2.3.1','2.3','谁可以删除喂食记录',{status:'question',model:'Claude Haiku 4.5',est:'$0.8–1.2 · 约 12 分钟',
+        crit:['按选定规则限制删除权限','没有权限时按钮置灰并说明原因'],
+        q:{t:'家里有人想删掉一条喂食记录，应该怎么处理？',o:['任何成员都能删','只有记录者本人和管理员能删','删除需要管理员确认'],def:1,why:'这会决定数据表的权限规则，改起来成本高，所以先问你。'}}),
+      N('3','0','到点提醒喂食'),
+      N('3.1','3','iOS 推送提醒'),
+      N('3.1.1','3.1','接入 APNs 推送',{status:'approval',model:'Claude Sonnet 5',agent:'Claude Code',est:'$2.4–3.6 · 约 25 分钟',
+        crit:['到设定时间收到推送','点推送直接打开记录页'],evPlan:'真机推送录屏 + 单元测试'}),
+      N('3.1.2','3.1','提醒时间设置页',{status:'approval',model:'Claude Haiku 4.5',agent:'Claude Code',est:'$1.7–2.7 · 约 15 分钟',
+        crit:['每只猫可以设多个提醒时间','已经有人喂过就不再提醒'],evPlan:'页面截图'}),
+      N('3.2','3','根据习惯预测下一次喂食时间',{status:'draft',assume:'假设：用最近 14 天的记录来预测',est:'$6–9（还没拆解）'}),
+      N('4','0','上架 App Store',{status:'draft',est:'$9–10（还没拆解）'})
+    ],
+    decisions:[
+      ['09-12','后端选 Supabase，理由：自带实时订阅和登录'],
+      ['09-12','第一版只做 iOS，Android 放到以后'],
+      ['09-15','打回 1.1.2：记录要能在两步内完成，原稿需要四步'],
+      ['09-18','规划阶段使用 Claude Opus 5.5，执行默认用 Claude Sonnet 5']
+    ]
+  },
+  p2: {
+    id:'p2', name:'播客摘要周报', color:'var(--ok)', phase:'building', repo:'github.com/mia/pod-digest', agents:['Claude Code'], budget:30,
+    nodes:[
+      N('0',null,'每周一早上收到我订阅的播客摘要'),
+      N('1','0','抓取与转写',{}),N('1.1','1','拉取 RSS 并下载新单集',{status:'done',cost:0.9,model:'Claude Haiku 4.5'}),
+      N('1.2','1','音频转文字',{status:'done',cost:2.1,model:'Claude Sonnet 5'}),
+      N('2','0','生成摘要邮件'),N('2.1','2','每集摘要 5 条要点',{status:'running',cost:1.2,progress:40,model:'Claude Sonnet 5'}),
+      N('2.2','2','邮件模板',{status:'ready',model:'Claude Haiku 4.5'})
+    ], decisions:[['09-20','邮件用 Resend 发送']]
+  },
+  p3: {
+    id:'p3', name:'周末市集地图', color:'var(--warn)', phase:'clarify', seed:'周末想逛市集，但每次都不知道这周哪里有，想要一张地图把附近的市集都标出来，还能看摊位',
+    answers:{}, nodes:[], decisions:[]
+  }
+};
+
+const CLARIFY_Q = [
+  {k:'who',t:'主要给谁用？',o:['只给我自己用','给同城的朋友们','公开给所有人']},
+  {k:'data',t:'市集信息从哪里来？',o:['我自己手动录入','让摊主自己提交','从公众号和小红书自动抓取']},
+  {k:'form',t:'第一版做成什么形式？',o:['网页','iOS App','微信小程序']}
+];
+
+let ideas = [
+  {id:'i1', src:'iOS 语音', at:'今天 08:12', dur:'0:23', text:'猫粮快吃完的时候能不能提醒我买？最好根据每天喂多少算一下还能吃几天。',
+   ai:{kind:'attach', pid:'p1', node:'3.2', label:'PawLog 喂猫记录 → 3.2 根据习惯预测下一次喂食时间', why:'和喂食量预测用的是同一份数据'}, state:'new'},
+  {id:'i2', src:'网页 · 打字', at:'昨天 23:40', text:'做一个把我所有 side project 的 GitHub star 数汇总在一起的小看板',
+   ai:{kind:'new', label:'新项目', why:'和现有项目都不相关，范围比较小，大约 $8–14'}, state:'new'},
+  {id:'i3', src:'iOS 语音', at:'昨天 19:05', dur:'0:09', text:'感觉现在喝咖啡喝太多了',
+   ai:{kind:'park', label:'先放在收集箱', why:'更像是一句感想，不像要做的事'}, state:'new'},
+  {id:'i4', src:'iOS 分享', at:'09-20', text:'播客摘要里加一个“本周值得听”的推荐排行',
+   ai:{kind:'attach', pid:'p2', node:'2', label:'播客摘要周报 → 2 生成摘要邮件'}, state:'attached'}
+];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = v => '$' + v.toFixed(2);
+const P = () => projects[S.pid];
+const node = (id, p=P()) => p.nodes.find(n => n.id === id);
+const kids = (id, p=P()) => p.nodes.filter(n => n.parent === id);
+const leaves = (id, p=P()) => { const k = kids(id,p); return k.length ? k.flatMap(c => leaves(c.id,p)) : [node(id,p)]; };
+const depth = (n, p=P()) => { let d=0, c=n; while(c.parent){ c=node(c.parent,p); d++; } return d; };
+const sumCost = (id, p=P()) => leaves(id,p).reduce((a,n)=>a+(n.cost||0),0);
+const pill = st => { const m = STATUS[st]; return `<span class="pill ${m.c}"><i>${m.i}</i>${m.t}</span>`; };
+function rollup(id, p=P()){
+  const ls = leaves(id,p).filter(n=>n.status!=='cut');
+  const order = ['stuck','question','approval','review','running','queued','ready','draft','done'];
+  if (!ls.length) return 'cut';
+  if (ls.every(n=>n.status==='done')) return 'done';
+  for (const s of order) if (ls.some(n=>n.status===s)) return s==='done'?'ready':s;
+}
+function statusOf(n, p=P()){ return kids(n.id,p).length ? rollup(n.id,p) : n.status; }
+function waitingFor(p=P()){
+  const ls = p.nodes.filter(n => !kids(n.id,p).length);
+  return { question: ls.filter(n=>n.status==='question'), approval: ls.filter(n=>n.status==='approval'),
+           review: ls.filter(n=>n.status==='review'), stuck: ls.filter(n=>n.status==='stuck') };
+}
+function totalWaiting(){
+  let c=0; for (const p of Object.values(projects)) { if (p.phase==='clarify') { c++; continue; } const w = waitingFor(p); c += w.question.length + w.review.length + w.stuck.length + (w.approval.length?1:0); }
+  return c;
+}
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true,2600); }
+function logDecision(p, text){ const d=new Date(); p.decisions.push([`${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, text]); }
+function go(o){ Object.assign(S,o); render(); }
+
+const ICON_MIC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+
+/* ---------- sidebar ---------- */
+function renderSide(){
+  const inboxN = ideas.filter(i=>i.state==='new').length;
+  $('#side').innerHTML = `
+    <div class="brand"><span class="brand-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 21V11"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6Z"/><path d="M12 14c0-3-2.5-5-6-5 0 3 2.5 5 6 5Z"/></svg></span><b>Sprout</b></div>
+    <nav class="nav" aria-label="主导航">
+      <div class="nav-label">收集</div>
+      <button class="${S.view==='inbox'?'on':''}" data-go="inbox"><span class="grow">灵感收集箱</span>${inboxN?`<span class="badge warn">${inboxN}</span>`:''}</button>
+      <div class="nav-label" style="margin-top:10px">项目 · 等你处理 ${totalWaiting()} 件</div>
+      ${Object.values(projects).map(p=>{
+        const w = p.phase==='clarify' ? 1 : (()=>{const x=waitingFor(p);return x.question.length+x.review.length+x.stuck.length+(x.approval.length?1:0)})();
+        return `<button class="${S.view==='project'&&S.pid===p.id?'on':''}" data-proj="${p.id}"><span class="dot" style="background:${p.color}"></span><span class="grow">${esc(p.name)}</span>${w?`<span class="badge warn">${w}</span>`:''}</button>`;
+      }).join('')}
+      <div class="nav-label" style="margin-top:10px">移动端</div>
+      <button class="${S.view==='ios'?'on':''}" data-go="ios"><span class="grow">iOS 预览</span></button>
+    </nav>
+    <div class="side-foot"><span>交互原型 · 所有数据均为示例</span><button class="theme-btn" id="themeBtn">切换深浅色</button></div>`;
+}
+
+/* ---------- project ---------- */
+function renderProject(){
+  const p = P();
+  if (p.phase === 'clarify') return renderClarify(p);
+  const w = waitingFor(p);
+  const cards = [
+    {k:'question', n:w.question.length, t:'等你回答', s:'AI 需要你做决定'},
+    {k:'approval', n:w.approval.length?1:0, t:'等你批准', s:w.approval.length?`下一批 ${w.approval.length} 个任务和预算`:'下一批任务和预算'},
+    {k:'review',   n:w.review.length,   t:'等你验收', s:'看 demo，点通过'},
+    {k:'stuck',    n:w.stuck.length,    t:'AI 卡住', s:'需要你选一个方向'}
+  ];
+  const tabs = [['tree','目标树'],['stats','进度与花费'],['context','项目上下文'],['models','模型与 Agent']];
+  return `
+  <div class="phead">
+    <div>
+      <div class="eyebrow">项目 · ${esc(p.repo)}</div>
+      <h1>${esc(p.name)}</h1>
+      <div class="meta">已接入 ${p.agents.map(esc).join('、')} · 月度预算 <span class="num">$${p.budget}</span></div>
+    </div>
+    <div class="auto">
+      <div class="seg" role="group" aria-label="自动驾驶等级">
+        ${[['L0','每步都问'],['L1','按批次批准'],['L2','预算内自动']].map(([k,t])=>`<button class="${S.autopilot===k?'on':''}" data-auto="${k}">${k} ${t}</button>`).join('')}
+      </div>
+      <small>${{L0:'每个任务开始前都需要你批准',L1:'批准一批任务和预算上限，批内自动执行',L2:'月度预算内自动推进；删数据、部署、付费服务仍然要你批准'}[S.autopilot]}</small>
+    </div>
+  </div>
+  <div class="waiting">
+    ${cards.map(c=>`<button class="wchip ${c.n?'':'zero'}" data-wait="${c.k}"><span class="n num" style="color:${c.k==='stuck'?'var(--bad)':'var(--warn)'}">${c.n}</span><span class="l"><b>${c.t}</b>${c.s}</span></button>`).join('')}
+  </div>
+  <div class="tabs" role="tablist">${tabs.map(([k,t])=>`<button role="tab" aria-selected="${S.tab===k}" class="${S.tab===k?'on':''}" data-tab="${k}">${t}</button>`).join('')}</div>
+  ${S.tab==='tree'?renderTreeTab(p):S.tab==='stats'?renderStats(p):S.tab==='context'?renderContext(p):renderModels(p)}`;
+}
+
+function renderGate(p){
+  const w = waitingFor(p).approval;
+  if (!w.length) return '';
+  const parent = node(w[0].parent, p);
+  return `<div class="card gate">
+    <div class="g-t"><span class="eyebrow" style="color:var(--warn)">等你批准 · 下一批</span>
+      <b>${esc(parent.id)} ${esc(parent.title)}（${w.length} 个任务）</b>
+      <span class="muted" style="font-size:13px">预计 <span class="num">$4.10–6.30</span> · Agent 约 35–50 分钟 · 完成后附真机录屏和截图</span></div>
+    <div class="row"><button class="btn primary" data-approve="all">批准，上限 $6.50</button><button class="btn" data-approve="one">只做 ${esc(w[0].id)}</button><button class="btn ghost" data-sel="${w[0].id}">看详情</button></div>
+  </div>`;
+}
+
+function renderTreeTab(p){
+  const rows = [];
+  const walk = (n) => {
+    const d = depth(n,p), k = kids(n.id,p), st = statusOf(n,p);
+    const collapsed = S.collapsed.has(n.id);
+    let extra = '';
+    if (d===1 && k.length){
+      const ls = leaves(n.id,p).filter(x=>x.status!=='cut'); const tot = ls.length;
+      const seg = (s,cls)=>{const c=ls.filter(x=>s.includes(x.status)).length;return c?`<span class="${cls}" style="width:${c/tot*100}%"></span>`:''};
+      extra = `<div class="bar" aria-label="进度">${seg(['done'],'b-ok')}${seg(['running','queued'],'b-run')}${seg(['review','question','approval'],'b-warn')}${seg(['stuck'],'b-bad')}</div>`;
+    }
+    const cost = sumCost(n.id,p);
+    rows.push(`<div tabindex="0" role="treeitem" class="trow l${d} ${S.sel===n.id?'sel':''} ${st==='cut'?'cut':''}" data-sel="${n.id}" style="padding-left:${8+d*20}px">
+      <button class="caret ${k.length?'':'none'}" data-tog="${n.id}" aria-label="${collapsed?'展开':'收起'}">${collapsed?'▶':'▼'}</button>
+      <span class="lv">L${d}</span>
+      <span class="ttl"><span class="t">${d?`<span class="num muted" style="font-size:12px">${esc(n.id)}</span> `:''}${esc(n.title)}</span>${n.assume?`<span><span class="tag">${esc(n.assume)}</span></span>`:''}${extra}</span>
+      <span class="tright">${d?pill(st):''}<span class="tcost num">${cost?money(cost):''}</span></span>
+    </div>`);
+    if (!collapsed) k.forEach(walk);
+  };
+  walk(p.nodes[0]);
+  return `<div class="split">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${renderGate(p)}
+      <div class="card tree" role="tree">${rows.join('')}</div>
+      <div class="demo-note">L0 愿景 → L1 里程碑 → L2 功能 → L3 任务。只有 L3 会交给 Agent 执行，上层进度由下层汇总。点任意节点查看详情，或告诉 AI 怎么调整。</div>
+    </div>
+    <aside class="card detail" aria-live="polite">${renderDetail(p)}</aside>
+  </div>`;
+}
+
+function mockScreen(kind){
+  if (kind==='record') return `<div class="shot"><div class="sh">记录喂食</div><div class="fld"><span>猫咪</span><b>橘子 ▾</b></div><div class="fld"><span>份量</span><b>40 g</b></div><div class="fld"><span>时间</span><b>现在 09:12</b></div><div class="cta">记一笔</div></div>`;
+  if (kind==='timeline') return `<div class="shot"><div class="sh">今天</div>${[['18:30','年糕 · 35g · 小林'],['12:05','橘子 · 40g · 妈妈'],['07:48','橘子 · 40g · 我']].map(([a,b])=>`<div class="tl"><b>${a}</b><span>${b}</span></div>`).join('')}<div class="sh" style="margin-top:4px">昨天</div><div class="tl"><b>19:10</b><span>年糕 · 35g · 我</span></div></div>`;
+  if (kind==='invite'){ const pat='1111111100000110111011011101101110110000011111111'; return `<div class="shot"><div class="sh">邀请家人</div><div class="qr">${[...pat].map(c=>`<span class="${c==='1'?'':'o'}"></span>`).join('')}</div><div class="fld"><span>pawlog.app/j/8KQ2</span></div><div style="color:#666">7 天内有效 · 可随时撤销</div><div class="cta">分享链接</div></div>`; }
+  return '';
+}
+
+function renderEvidence(n){
+  const e = n.ev; if (!e) return '';
+  const tests = e.tests ? `<div class="tests"><div><b class="p">${e.pass}/${e.total} 通过</b></div>${e.tests.map(t=>`<div><span class="p">✓</span><span>${esc(t)}</span></div>`).join('')}${e.total>e.tests.length?`<div class="muted">… 另外 ${e.total-e.tests.length} 个</div>`:''}</div>` : '';
+  const shot = e.screen ? `<div>${mockScreen(e.screen)}<div class="shot-cap">${esc(e.cap)}</div></div>` : '';
+  return `<div class="dsec"><h3>完成证据</h3><div class="ev">${shot}${tests}</div></div>`;
+}
+
+function renderDetail(p){
+  const n = node(S.sel, p); if (!n) return '';
+  const k = kids(n.id,p), d = depth(n,p), st = statusOf(n,p);
+  let body = '';
+  if (k.length || d===0){
+    const ls = leaves(n.id,p).filter(x=>x.status!=='cut');
+    body += `<dl class="kv"><div><dt>已验收任务</dt><dd class="num">${ls.filter(x=>x.status==='done').length} / ${ls.length}</dd></div><div><dt>已花费</dt><dd class="num">${money(sumCost(n.id,p))}</dd></div></dl>`;
+    body += `<div class="dsec"><h3>下一层</h3><div class="opts">${k.map(c=>`<button class="opt" data-sel="${c.id}"><span><span class="num muted">${esc(c.id)}</span> ${esc(c.title)}</span>${pill(statusOf(c,p))}</button>`).join('')}</div></div>`;
+  } else {
+    if (st==='stuck') body += `<div class="reason s-bad"><b>卡在哪：</b>${esc(n.stuck)}</div><div class="dsec"><h3>AI 建议的出路</h3><div class="opts">${n.fixes.map((f,i)=>`<button class="opt" data-fix="${i}"><span>${esc(f.t)}</span><small>${esc(f.s)}</small></button>`).join('')}</div></div>`;
+    if (st==='question') body += `<div class="dsec"><h3>${esc(n.q.t)}</h3><span class="muted" style="font-size:13px">${esc(n.q.why)}</span><div class="opts">${n.q.o.map((o,i)=>`<button class="opt" data-ans="${i}"><span>${esc(o)}</span><small>${i===n.q.def?'AI 默认假设':''}</small></button>`).join('')}</div></div>`;
+    if (st==='review') body += `<div class="reason s-warn"><b>AI 已完成，等你验收。</b>看一下下面的截图和测试结果，通过后才算进度。</div>`;
+    if (st==='approval') body += `<div class="reason s-warn">这个任务在“下一批”里，批准后开始执行。完成后会提供：${esc(n.evPlan)}。</div>`;
+    if (st==='running') body += `<div class="dsec"><div class="row" style="justify-content:space-between"><h3>正在执行</h3><span class="num muted">${n.progress}%</span></div><div class="bar" style="max-width:none;height:6px"><span class="b-run" style="width:${n.progress}%"></span></div><div class="log">${(n.log||['等待 Agent 启动…']).map(esc).join('<br>')}</div></div>`;
+    body += `<dl class="kv">
+      <div><dt>Agent · 模型</dt><dd>${esc(n.agent||'自动选择')} · ${esc(n.model||'—')}</dd></div>
+      <div><dt>${n.cost?'已花费':'预计成本'}</dt><dd class="num">${n.cost?`${money(n.cost)} · ${n.tok}k tok`:esc(n.est||'—')}</dd></div>
+      <div><dt>用时</dt><dd>${esc(n.time||'—')}</dd></div>
+      <div><dt>${n.cost&&n.est?'预计还需':'证据类型'}</dt><dd class="num">${esc(n.cost&&n.est?n.est:(n.ev?({test:'自动化测试',shot:'截图',both:'截图 + 测试'}[n.ev.type]):(n.evPlan||'—')))}</dd></div>
+    </dl>`;
+    if (n.crit) body += `<div class="dsec"><h3>验收标准</h3><ul class="crit">${n.crit.map(c=>`<li><span class="ck ${st==='done'||st==='review'?'y':''}">${st==='done'||st==='review'?'✓':''}</span><span>${esc(c)}</span></li>`).join('')}</ul></div>`;
+    body += renderEvidence(n);
+    if (st==='review') body += S.rejecting
+      ? `<div class="dsec"><label for="rejTxt"><h3>哪里不对？</h3></label><textarea id="rejTxt" rows="2" placeholder="例如：链接应该 24 小时过期，不是 7 天"></textarea><div class="row"><button class="btn primary" data-act="reject-send">打回并告诉 AI</button><button class="btn ghost" data-act="reject-cancel">取消</button></div></div>`
+      : `<div class="row"><button class="btn primary" data-act="accept">通过验收</button><button class="btn" data-act="reject">打回</button></div>`;
+  }
+  const prop = S.proposal && S.proposal.id===n.id ? `<div class="proposal"><b>AI 的修改建议</b><span style="font-size:13px">${esc(S.proposal.summary)}</span><div class="diff">${S.proposal.diff.map(([c,t])=>`<span class="${c}">${c==='a'?'+':c==='d'?'−':'~'} ${esc(t)}</span>`).join('')}</div><div class="row"><button class="btn primary" data-act="prop-ok">接受修改</button><button class="btn ghost" data-act="prop-no">不用了</button></div></div>` : '';
+  return `<div class="dsec"><div class="row" style="justify-content:space-between"><span class="eyebrow">L${d} · ${['愿景','里程碑','功能','任务'][d]||'任务'} ${d?esc(n.id):''}</span>${d?pill(st):''}</div><h2>${esc(n.title)}</h2>${n.assume?`<span><span class="tag">${esc(n.assume)}</span></span>`:''}</div>
+    ${body}
+    <hr class="sep">
+    <div class="dsec"><h3>告诉 AI 这里怎么调整</h3>
+      <div class="chips">${[['split','拆得更细'],['alt','换个方案'],['cheap','降低成本'],['cut','这个先不做']].map(([k,t])=>`<button class="chip" data-prop="${k}">${t}</button>`).join('')}</div>
+      <div class="cap-row"><input type="text" id="adjTxt" placeholder="也可以直接说，比如：提醒要支持 Apple Watch"><button class="btn" data-prop="free">发送</button></div>
+      ${prop}
+    </div>`;
+}
+
+function makeProposal(kind, n, p){
+  const d = depth(n,p);
+  if (kind==='split') return d>=3
+    ? {id:n.id,kind,summary:'把这个任务拆成两个更小的任务，Agent 每次只做一件事，失败了重做的成本更低。',diff:[['d',`${n.id} ${n.title}`],['a',`${n.id}a ${n.title}：核心逻辑`],['a',`${n.id}b ${n.title}：边界情况与测试`],['m','预计成本 +$0.30，成功率从 78% 提高到约 90%']]}
+    : {id:n.id,kind,summary:'在这一层下面新增两个子节点。',diff:[['a',`${n.id}.${kids(n.id,p).length+1} ${n.title}：MVP 最小版本`],['a',`${n.id}.${kids(n.id,p).length+2} ${n.title}：完善与测试`]]};
+  if (kind==='alt') return {id:n.id,kind,summary:'换一种实现方式：用成熟的第三方服务代替自己写。',diff:[['m',`标题：${n.title} → ${n.title}（改用现成服务）`],['m','验收标准保持不变'],['m','预计成本 −20%，但会多一个外部依赖']]};
+  if (kind==='cheap') return {id:n.id,kind,summary:'把模型换成更便宜的，适合逻辑简单的任务。',diff:[['m',`模型：${n.model||'Claude Sonnet 5'} → Claude Haiku 4.5`],['m','预计成本约降低 60%'],['d','风险：复杂逻辑的首次成功率可能下降']]};
+  if (kind==='cut') return {id:n.id,kind,summary:'这个节点和它下面的所有任务先搁置，以后可以恢复。',diff:[['d',`${n.id} ${n.title}（${leaves(n.id,p).length} 个任务）`],['m','剩余预计成本相应减少']]};
+  const txt = ($('#adjTxt')?.value||'').trim(); if (!txt) return null;
+  return {id:n.id,kind,txt,summary:`AI 的理解：“${txt}”。会在这个节点下新增一个任务，并补充验收标准。`,diff:[['a',`新任务：${txt}`],['m','已写入项目上下文的决策记录']]};
+}
+
+function applyProposal(p){
+  const pr = S.proposal, n = node(pr.id,p);
+  if (pr.kind==='split' && depth(n,p)>=3){
+    const i = p.nodes.indexOf(n);
+    const base = {model:n.model,agent:n.agent,crit:n.crit,status:n.status==='done'?'done':'ready',est:'$0.6–1.0'};
+    p.nodes.splice(i,1, N(n.id+'a',n.parent,n.title+'：核心逻辑',{...base}), N(n.id+'b',n.parent,n.title+'：边界情况与测试',{...base}));
+    S.sel = n.id+'a';
+  } else if (pr.kind==='split'){
+    const c = kids(n.id,p).length;
+    p.nodes.push(N(`${n.id}.${c+1}`,n.id,n.title+'：MVP 最小版本'),N(`${n.id}.${c+2}`,n.id,n.title+'：完善与测试'));
+    S.collapsed.delete(n.id);
+  } else if (pr.kind==='alt'){ n.title += '（改用现成服务）';
+  } else if (pr.kind==='cheap'){ leaves(n.id,p).forEach(l=>{ if(l.status!=='done') l.model='Claude Haiku 4.5'; });
+  } else if (pr.kind==='cut'){ leaves(n.id,p).forEach(l=>{ if(l.status!=='done') l.status='cut'; });
+  } else if (pr.kind==='free'){
+    const pid = kids(n.id,p).length || depth(n,p)<3 ? n.id : n.parent;
+    const c = kids(pid,p).length;
+    p.nodes.push(N(`${pid}.${c+1}`,pid,pr.txt,{status:'ready',model:'自动选择',est:'待估算'})); S.collapsed.delete(pid);
+  }
+  logDecision(p, `调整 ${pr.id}：${pr.summary}`);
+  S.proposal = null; toast('已按你的意见更新目标树，并写入决策记录');
+}
+
+/* ---------- stats ---------- */
+const SPEND = [0.4,1.2,2.0,2.9,3.1,4.6,6.0,7.2,8.8,10.1,12.5,14.2,16.3,18.4];
+function spendChart(p){
+  const W=600,H=230,L=40,R=16,T=14,B=28, days=22, ymax=60;
+  const x=i=>L+(W-L-R)*i/(days-1), y=v=>T+(H-T-B)*(1-v/ymax);
+  const pts = SPEND.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const last = SPEND.length-1, end = days-1;
+  const band = `M${x(last)},${y(SPEND[last])} L${x(end)},${y(18.4+31)} L${x(end)},${y(18.4+22)} Z`;
+  const grid = [0,20,40,60].map(v=>`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line-2)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">$${v}</text>`).join('');
+  const xt = [[0,'09-10'],[7,'09-17'],[14,'09-24'],[21,'10-01']].map(([i,t])=>`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${t}</text>`).join('');
+  return `<div class="chart" id="spendChart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="累计花费：已花 $18.40，预计完成时累计 $40–49，预算 $60">
+    ${grid}${xt}
+    <line x1="${L}" x2="${W-R}" y1="${y(p.budget)}" y2="${y(p.budget)}" stroke="var(--muted)" stroke-dasharray="5 4" stroke-width="1.5"/>
+    <text x="${W-R}" y="${y(p.budget)-6}" text-anchor="end">月度预算 $${p.budget}</text>
+    <path d="${band}" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".4" stroke-dasharray="3 3"/>
+    <text x="${x(end)-4}" y="${y(49.4)-6}" text-anchor="end">预测 $40–49</text>
+    <path d="M${pts.join(' L')} L${x(last)},${y(0)} L${x(0)},${y(0)} Z" fill="var(--accent)" fill-opacity=".08"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${x(last)}" cy="${y(SPEND[last])}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>
+    <line id="xh" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink-2)" stroke-width="1" opacity="0"/>
+    <circle id="xhd" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" opacity="0"/>
+    <rect id="hit" x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent"/>
+  </svg><div class="tip" id="tip" hidden></div></div>`;
+}
+function bindChart(){
+  const box = $('#spendChart'); if (!box) return;
+  const svg = box.querySelector('svg'), hit = box.querySelector('#hit'), tip = box.querySelector('#tip');
+  const W=600,L=40,R=16,T=14,B=28,H=230,days=22;
+  const x=i=>L+(W-L-R)*i/(days-1), y=v=>T+(H-T-B)*(1-v/60);
+  const move = ev => {
+    const r = svg.getBoundingClientRect(); const px = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(SPEND.length-1, Math.round((px-L)/(W-L-R)*(days-1))));
+    const xh = svg.querySelector('#xh'), dd = svg.querySelector('#xhd');
+    xh.setAttribute('x1',x(i)); xh.setAttribute('x2',x(i)); xh.setAttribute('opacity',1);
+    dd.setAttribute('cx',x(i)); dd.setAttribute('cy',y(SPEND[i])); dd.setAttribute('opacity',1);
+    const daySpend = i? SPEND[i]-SPEND[i-1] : SPEND[0];
+    tip.innerHTML = `09-${String(10+i).padStart(2,'0')} · 累计 <b>${money(SPEND[i])}</b> · 当天 ${money(daySpend)}`;
+    tip.hidden = false; tip.style.left = (x(i)/W*r.width + 16) + 'px'; tip.style.top = (y(SPEND[i])/H*r.height + 16) + 'px';
+  };
+  hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerleave', ()=>{ tip.hidden=true; svg.querySelector('#xh').setAttribute('opacity',0); svg.querySelector('#xhd').setAttribute('opacity',0); });
+}
+
+function renderStats(p){
+  const ls = p.nodes.filter(n=>!kids(n.id,p).length && depth(n,p)>0 && n.status!=='cut');
+  const tasks = ls.filter(n=>n.status!=='draft'), done = tasks.filter(n=>n.status==='done').length, drafts = ls.length - tasks.length;
+  const spent = p.nodes.reduce((a,n)=>a+(n.cost||0),0) + (p.id==='p1'?3.40:0);
+  const stuck = waitingFor(p).stuck.length;
+  const byModel = [['Claude Sonnet 5',8.90,'1.21M tok · 写代码'],['Codex',5.60,'0.62M tok · 写代码'],['Claude Opus 5.5',3.40,'0.22M tok · 规划与拆解'],['Claude Haiku 4.5',0.50,'0.26M tok · 简单页面、测试']];
+  const mx = Math.max(...byModel.map(m=>m[1]));
+  const ms = p.nodes.filter(n=>depth(n,p)===1);
+  return `
+  <div class="tiles">
+    <div class="card tile"><span class="eyebrow">已验收</span><span class="v num">${done}<small> / ${tasks.length} 个任务</small></span><span class="s">另有 ${drafts} 个模块待拆解</span></div>
+    <div class="card tile"><span class="eyebrow">已花费</span><span class="v num">${money(spent)}</span><span class="s num">2.31M tokens · 实计</span></div>
+    <div class="card tile"><span class="eyebrow">预计还需</span><span class="v num">$22–31</span><span class="s">置信度中等 · 随进度收窄</span></div>
+    <div class="card tile"><span class="eyebrow">预计完成</span><span class="v">9 月 30 日</span><span class="s">±2 天 · 取决于你批准的速度</span></div>
+    <div class="card tile"><span class="eyebrow">卡住</span><span class="v num" style="color:${stuck?'var(--bad)':'inherit'}">${stuck}</span><span class="s">${stuck?'2.2.2 离线冲突处理':'没有卡住的任务'}</span></div>
+  </div>
+  <div class="grid2">
+    <div class="card chartbox"><div class="row" style="justify-content:space-between"><h2>累计花费</h2><span class="muted" style="font-size:12px">悬停查看每天</span></div>
+      ${spendChart(p)}
+      <div class="legend"><span><i></i>实际花费</span><span><i class="band"></i>预测区间</span><span><i class="dash"></i>月度预算</span></div>
+    </div>
+    <div class="card chartbox"><h2>按模型拆分</h2>
+      <div class="hbars">${byModel.map(([m,v,s])=>`<div class="hb"><span>${m}</span><div class="track" title="${m} ${money(v)}"><div class="fill" style="width:${v/mx*100}%"></div></div><span class="val num">${money(v)}</span><span class="sub">${s}</span></div>`).join('')}</div>
+    </div>
+  </div>
+  <div class="card tscroll"><table class="t">
+    <thead><tr><th>里程碑</th><th>状态</th><th class="r">任务</th><th class="r">已花费</th><th class="r">预计还需</th></tr></thead>
+    <tbody>${ms.map(m=>{const l=leaves(m.id,p).filter(x=>x.status!=='cut');return `<tr><td>${esc(m.id)} ${esc(m.title)}</td><td>${pill(statusOf(m,p))}</td><td class="r num">${l.filter(x=>x.status==='done').length}/${l.length}</td><td class="r num">${money(sumCost(m.id,p))}</td><td class="r num">${{'1':'—','2':'$3.1–5.4','3':'$10.1–15.3','4':'$9–10'}[m.id]||'—'}</td></tr>`}).join('')}</tbody>
+  </table></div>`;
+}
+
+/* ---------- context ---------- */
+function renderContext(p){
+  return `<div class="ctx">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card doc"><div class="row" style="justify-content:space-between"><h2>BRIEF.md</h2><span class="muted" style="font-size:12px">每次派任务都会注入给 Agent</span></div>
+<pre>愿景：${esc(p.nodes[0]?.title)}
+用户：家里有 1–3 只猫、2–4 个家庭成员
+平台：iOS 优先（SwiftUI）
+后端：Supabase（数据库 + 实时订阅 + 登录）
+不做：Android、多语言、硬件喂食器对接
+风格：记录一次要在两步之内完成</pre></div>
+      <div class="card doc"><h2>已接入的 Agent</h2><div class="agents">
+        ${[['Claude Code','已连接 · Agent SDK · 云端沙盒',true],['Codex','已连接 · API key',true],['Cursor 后台 Agent','未连接',false]].map(([a,s,on])=>`<div class="agent"><span class="dot" style="background:${on?'var(--ok)':'var(--idle)'}"></span><span class="grow"><b>${a}</b><br><span class="muted" style="font-size:12px">${s}</span></span><button class="btn ${on?'ghost':''}">${on?'设置':'连接'}</button></div>`).join('')}
+      </div><span class="muted" style="font-size:12px">代码仓库 ${esc(p.repo)} 是唯一的事实来源。换 Agent 时，新 Agent 读取同一个仓库和同一份上下文包。</span></div>
+    </div>
+    <div class="card doc"><div class="row" style="justify-content:space-between"><h2>DECISIONS.md</h2><span class="muted" style="font-size:12px">你的回答、打回和调整都会记在这里</span></div>
+      <ul class="dlog">${p.decisions.slice().reverse().map(([t,x])=>`<li><time>${t}</time><span>${esc(x)}</span></li>`).join('')}</ul></div>
+  </div>`;
+}
+
+/* ---------- models ---------- */
+const ROUTES = {
+  cheap:   {plan:'Claude Sonnet 5',code:'Claude Haiku 4.5',ui:'Claude Haiku 4.5',test:'Claude Haiku 4.5',fix:'Claude Sonnet 5'},
+  balanced:{plan:'Claude Opus 5.5',code:'Claude Sonnet 5',ui:'Claude Sonnet 5',test:'Claude Haiku 4.5',fix:'Codex'},
+  quality: {plan:'Claude Opus 5.5',code:'Claude Opus 5.5',ui:'Claude Opus 5.5',test:'Claude Sonnet 5',fix:'Claude Opus 5.5'}
+};
+let manualRoute = {...ROUTES.balanced};
+function renderModels(){
+  const r = S.strategy==='manual' ? manualRoute : ROUTES[S.strategy];
+  const rows = [['plan','规划与拆解','目标树、澄清问题、验收标准'],['code','后端与业务逻辑','API、数据模型、同步'],['ui','界面','SwiftUI 页面、截图对比'],['test','测试','补测试、跑回归'],['fix','卡住后的重试','连续失败 2 次后接手']];
+  const cost = {cheap:'$14–19',balanced:'$22–31',quality:'$41–58',manual:'$22–33'}[S.strategy];
+  return `<div class="card doc">
+    <div class="row" style="justify-content:space-between"><h2>模型路由</h2>
+      <div class="seg">${[['cheap','省钱'],['balanced','均衡'],['quality','质量优先'],['manual','手动']].map(([k,t])=>`<button class="${S.strategy===k?'on':''}" data-strat="${k}">${t}</button>`).join('')}</div></div>
+    <span class="muted" style="font-size:13px">按这个策略，完成剩余任务预计需要 <b class="num" style="color:var(--ink)">${cost}</b>。任意节点都可以在目标树里单独覆盖。</span>
+    <div class="tscroll"><table class="t"><thead><tr><th>任务类型</th><th>包括</th><th>模型</th><th>为什么</th></tr></thead><tbody>
+    ${rows.map(([k,t,s])=>`<tr><td><b>${t}</b></td><td class="muted">${s}</td><td><select id="route-${k}" data-route="${k}" ${S.strategy==='manual'?'':'disabled'}>${MODELS.map(m=>`<option ${m===r[k]?'selected':''}>${m}</option>`).join('')}</select></td><td class="muted" style="font-size:12.5px">${{plan:'拆解质量决定后面所有任务，值得用最强的模型',code:'本项目同类任务历史成功率 94%',ui:'需要看截图对比，多模态能力要好',test:'模式固定，便宜的模型就够了',fix:'换一个 Agent 看问题，常常能绕开原来的死胡同'}[k]}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+
+/* ---------- clarify ---------- */
+function renderClarify(p){
+  const qs = CLARIFY_Q, all = qs.every(q=>p.answers[q.k]!=null);
+  return `<div class="phead"><div><div class="eyebrow">孵化中 · 还没有花钱</div><h1>${esc(p.name)}</h1></div></div>
+  <div class="card clar">
+    <div class="dsec"><span class="eyebrow">你的原话</span><q style="font-size:15px">${esc(p.seed)}</q></div>
+    <div class="reason s-warn">生成计划之前，AI 有 3 个问题。都是单选，大约 20 秒。其他不确定的地方会先按合理默认值处理，并在目标树上标成“假设”。</div>
+    ${qs.map(q=>`<div class="q"><h3>${q.t}</h3><div class="qo">${q.o.map((o,i)=>`<button class="${p.answers[q.k]===i?'on':''}" data-cq="${q.k}" data-ci="${i}">${esc(o)}</button>`).join('')}</div></div>`).join('')}
+    <div class="row"><button class="btn primary" data-act="gen" ${all?'':'disabled'}>生成目标树</button><span class="muted" style="font-size:12px">${all?'生成后只做计划，不会自动开始执行':'还有 '+qs.filter(q=>p.answers[q.k]==null).length+' 个问题'}</span></div>
+  </div>`;
+}
+function generateTree(p){
+  const a = k => CLARIFY_Q.find(q=>q.k===k).o[p.answers[k]];
+  p.nodes = [
+    N('0',null,p.seed.length>40?p.seed.slice(0,38)+'…':p.seed,{assume:`形式：${a('form')} · 用户：${a('who')}`}),
+    N('1','0','能看到这周的市集'),N('1.1','1','市集数据：'+a('data'),{status:'ready',model:'Claude Sonnet 5',est:'$2–4',crit:['至少录入 10 个市集','包含时间、地点、摊位列表']}),
+    N('1.2','1','地图上标出市集',{status:'ready',model:'Claude Sonnet 5',est:'$3–5',crit:['按日期筛选','点标记看详情']}),
+    N('2','0','看摊位',{}),N('2.1','2','市集详情页与摊位列表',{status:'ready',model:'Claude Haiku 4.5',est:'$1.5–2.5'}),
+    N('3','0','分享给朋友',{status:'draft',est:'$4–8（还没拆解）'})
+  ];
+  p.phase = 'building'; p.repo = 'github.com/mia/market-map（待创建）'; p.agents=['Claude Code']; p.budget = 30;
+  CLARIFY_Q.forEach(q=>logDecision(p, `${q.t} → ${a(q.k)}`));
+  S.sel = '0'; S.tab = 'tree';
+}
+
+/* ---------- inbox ---------- */
+function renderInbox(){
+  const act = i => {
+    if (i.state==='attached') return `<span class="pill s-ok"><i>✓</i>已归入</span>`;
+    if (i.state==='incubating') return `<span class="pill s-run"><i>◌</i>已建项目</span>`;
+    if (i.state==='parked') return `<span class="pill s-idle"><i>–</i>留在收集箱</span>`;
+    const main = i.ai.kind==='attach' ? '归入' : i.ai.kind==='new' ? '新建项目' : '好的';
+    return `<div class="row"><button class="btn primary" data-idea="${i.id}" data-do="${i.ai.kind}">${main}</button>${i.ai.kind!=='new'?`<button class="btn" data-idea="${i.id}" data-do="new">新建项目</button>`:''}${i.ai.kind!=='park'?`<button class="btn ghost" data-idea="${i.id}" data-do="park">先放着</button>`:''}</div>`;
+  };
+  return `<div><div class="eyebrow">收集</div><h1>灵感收集箱</h1></div>
+  <div class="card capture">
+    <label for="capTxt"><h2>想到什么就记下来</h2></label>
+    <div class="cap-row">
+      <textarea id="capTxt" placeholder="打字，或者按右边的按钮说话…">${esc(S.draft)}</textarea>
+      <button class="mic ${S.recording?'rec':''}" id="micBtn" aria-label="${S.recording?'停止录音':'开始语音输入'}">${S.recording?'<span class="wave"><span></span><span></span><span></span><span></span></span>':ICON_MIC}</button>
+    </div>
+    <div class="row" style="justify-content:space-between"><span class="demo-note">${S.recording?'正在听…（原型里是模拟转写，真实产品会使用麦克风）':'AI 会判断它属于哪个项目，你只需要点一下确认'}</span><button class="btn primary" data-act="capture">记下来</button></div>
+  </div>
+  <div class="card digest"><span class="eyebrow">本周小结 · AI</span><div style="margin-top:4px">你这周提了 <b>3 次</b>跟猫有关的点子，其中 2 个已经归入 PawLog。另外有 1 个新项目在孵化，还没有开始花钱。</div></div>
+  <div class="ideas">${ideas.map(i=>`<div class="card idea">
+    <div class="src"><span>${esc(i.src)}</span><span>·</span><span>${esc(i.at)}</span>${i.dur?`<span class="pill s-idle"><i>▶</i>${i.dur} 原始录音</span>`:''}</div>
+    <q>${esc(i.text)}</q>
+    <div class="triage"><div class="ai">AI 建议：<b>${esc(i.ai.label)}</b>${i.ai.why?`<br><span class="muted">${esc(i.ai.why)}</span>`:''}</div>${act(i)}</div>
+  </div>`).join('')}</div>`;
+}
+function triage(text){
+  if (/猫|喂|宠物|猫粮/.test(text)) return {kind:'attach',pid:'p1',node:'3',label:'PawLog 喂猫记录 → 3 到点提醒喂食',why:'提到了猫和喂食'};
+  if (/播客|podcast|摘要/i.test(text)) return {kind:'attach',pid:'p2',node:'2',label:'播客摘要周报 → 2 生成摘要邮件',why:'和播客摘要有关'};
+  if (text.length < 14) return {kind:'park',label:'先放在收集箱',why:'内容比较短，等你想得更清楚再说'};
+  return {kind:'new',label:'新项目',why:'和现有项目都不相关'};
+}
+function ideaAction(id, what){
+  const i = ideas.find(x=>x.id===id);
+  if (what==='attach'){ i.state='attached'; const p=projects[i.ai.pid]; logDecision(p, `收集箱新点子挂到 ${i.ai.node}：${i.text}`); toast(`已归入「${p.name}」，写入项目上下文`); }
+  else if (what==='park'){ i.state='parked'; toast('先放着，下周小结里会再提醒你'); }
+  else if (what==='new'){
+    i.state='incubating'; const pid='p'+(Object.keys(projects).length+1);
+    const name = i.text.replace(/[，。,.！!？?].*$/,'').slice(0,12) || '新项目';
+    projects[pid] = {id:pid,name,color:'var(--idle)',phase:'clarify',seed:i.text,answers:{},nodes:[],decisions:[]};
+    toast('已建项目，先回答 3 个问题'); S.view='project'; S.pid=pid;
+  }
+  render();
+}
+
+/* ---------- iOS ---------- */
+function renderIOS(){
+  const p = projects.p1, w = waitingFor(p);
+  const items = [
+    ...w.review.map(n=>({t:`验收：${n.title}`,s:'PawLog · 截图 + 11 个测试',id:n.id})),
+    ...w.question.map(n=>({t:`回答：${n.q.t}`,s:'PawLog · 单选',id:n.id})),
+    ...(w.approval.length?[{t:'批准：3.1 iOS 推送提醒',s:'PawLog · 预计 $4.10–6.30',id:w.approval[0].id}]:[]),
+    ...w.stuck.map(n=>({t:`AI 卡住：${n.title}`,s:'PawLog · 3 个出路',id:n.id})),
+    ...Object.values(projects).filter(x=>x.phase==='clarify').map(x=>({t:`回答 3 个问题：${x.name}`,s:'孵化中',pid:x.id}))
+  ];
+  const rev = node('2.1.1',p);
+  const status = `<div class="p-status"><span>9:41</span><span>●●● 5G</span></div>`;
+  return `<div><div class="eyebrow">移动端</div><h1>iOS 预览</h1><p class="muted" style="margin:6px 0 0;max-width:62ch">手机是遥控器，只做三件事：随时记点子、处理等你的事、看 demo 验收。编辑目标树、调模型这类深度操作留在网页端。</p></div>
+  <div class="phones">
+    <div><div class="phone">${status}<div class="p-body">
+      <div class="p-title">记一下</div>
+      <button class="bigmic ${S.phoneRec?'rec':''}" id="phoneMic" aria-label="按住说话">${S.phoneRec?'<span class="wave" style="color:#fff"><span></span><span></span><span></span><span></span></span>':ICON_MIC.replace('22','40').replace('22','40')}</button>
+      <div class="p-cap">${S.phoneRec?'正在听… 再点一次结束':'点一下开始说话 · 也支持锁屏小组件和 Action Button'}</div>
+      ${ideas.slice(0,3).map(i=>`<div class="p-item"><span>${esc(i.text.slice(0,30))}${i.text.length>30?'…':''}</span><small>${esc(i.at)} · ${i.state==='new'?'AI 建议：'+esc(i.ai.label.split(' → ')[0]):'已处理'}</small></div>`).join('')}
+    </div></div><div class="p-label" style="margin-top:8px">① 捕捉</div></div>
+
+    <div><div class="phone">${status}<div class="p-body">
+      <div class="p-title">等你处理</div>
+      <div class="p-cap" style="text-align:left">${items.length} 件，大约 2 分钟</div>
+      ${items.map(it=>`<button class="p-item" style="text-align:left;cursor:pointer;font:inherit;color:inherit" ${it.pid?`data-proj="${it.pid}"`:`data-jump="${it.id}"`}><span>${esc(it.t)}</span><small>${esc(it.s)}</small></button>`).join('') || '<div class="p-cap">都处理完了</div>'}
+      <div class="p-item" style="background:var(--surface-2)"><span>昨晚 AI 完成了 1 个任务</span><small>PawLog · 花费 $2.95 · 1.2.1 时间线</small></div>
+    </div></div><div class="p-label" style="margin-top:8px">② 待处理（推送进入）</div></div>
+
+    <div><div class="phone">${status}<div class="p-body">
+      <div class="p-title" style="font-size:18px">${esc(rev.title)}</div>
+      ${pill(rev.status)}
+      <div style="display:flex;justify-content:center">${mockScreen('invite')}</div>
+      <div class="p-item"><span class="num" style="color:var(--ok)">✓ 11/11 测试通过</span><small>3 条验收标准全部覆盖 · $2.95</small></div>
+      ${rev.status==='review'?`<div class="row" style="justify-content:center"><button class="btn primary" data-act="accept-m">通过</button><button class="btn" data-jump="2.1.1" data-rej="1">打回</button></div>`:`<div class="p-cap">已验收，下一个任务会自动开始</div>`}
+    </div></div><div class="p-label" style="margin-top:8px">③ 看 demo 验收</div></div>
+  </div>`;
+}
+
+/* ---------- render & events ---------- */
+function render(){
+  renderSide();
+  $('#main').innerHTML = S.view==='inbox' ? renderInbox() : S.view==='ios' ? renderIOS() : renderProject();
+  bindChart();
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,[data-sel]'); if (!t) return;
+  const d = t.dataset, p = P();
+  if (t.id==='themeBtn'){ const r=document.documentElement; const dark = r.dataset.theme ? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark?'light':'dark'; return; }
+  if (d.go) return go({view:d.go});
+  if (d.proj) return go({view:'project', pid:d.proj, tab:'tree', sel:'0', proposal:null, rejecting:false});
+  if (d.tab) return go({tab:d.tab});
+  if (d.auto){ S.autopilot=d.auto; logDecision(p,`自动驾驶等级改为 ${d.auto}`); toast(`自动驾驶等级：${d.auto}`); return render(); }
+  if (d.tog){ e.stopPropagation(); S.collapsed.has(d.tog)?S.collapsed.delete(d.tog):S.collapsed.add(d.tog); return render(); }
+  if (d.wait){ const l = waitingFor(p)[d.wait]; if (!l.length) return; let c=node(l[0].parent,p); while(c){ S.collapsed.delete(c.id); c=c.parent?node(c.parent,p):null; } return go({tab:'tree', sel:l[0].id, proposal:null, rejecting:false}); }
+  if (d.jump){ return go({view:'project', pid:'p1', tab:'tree', sel:d.jump, rejecting:!!d.rej, proposal:null}); }
+  if (d.sel && !d.prop){ let c=node(d.sel,p); while(c&&c.parent){ c=node(c.parent,p); if(c) S.collapsed.delete(c.id);} return go({sel:d.sel, proposal:null, rejecting:false}); }
+  if (d.approve){
+    const w = waitingFor(p).approval;
+    if (d.approve==='all'){ w.forEach((n,i)=>{ n.status = i? 'queued':'running'; if(!i){n.progress=5;n.log=['刚刚 读取 Context Pack','刚刚 开始实现 APNs 注册流程…'];} }); logDecision(p,`批准 3.1 批次（${w.length} 个任务），预算上限 $6.50`); toast('已批准，Agent 开始执行 3.1.1'); }
+    else { w[0].status='running'; w[0].progress=5; w[0].log=['刚刚 读取 Context Pack','刚刚 开始执行…']; w.slice(1).forEach(n=>n.status='ready'); logDecision(p,`只批准 ${w[0].id}`); toast(`已批准 ${w[0].id}，其余任务保持就绪`); }
+    return render();
+  }
+  if (d.ans){ const n=node(S.sel,p); const a=n.q.o[+d.ans]; n.status='ready'; logDecision(p,`${n.id} ${n.q.t} → ${a}`); toast(`已记录你的决定，${n.id} 不再阻塞`); return render(); }
+  if (d.fix){ const n=node(S.sel,p); const f=n.fixes[+d.fix]; n.status = +d.fix===2 ? 'cut' : 'queued'; if(+d.fix===1) n.model='Claude Opus 5.5'; logDecision(p,`${n.id} 卡住，选择：${f.t}`); toast(+d.fix===2?'已搁置，剩余预算相应减少':'已排队，AI 会按这个方向重试'); return render(); }
+  if (d.prop){ const n=node(S.sel,p); const pr=makeProposal(d.prop,n,p); if(!pr){ toast('先写下你想怎么调整'); return; } S.proposal=pr; return render(); }
+  if (d.strat){ S.strategy=d.strat; return render(); }
+  if (d.cq){ p.answers[d.cq]=+d.ci; return render(); }
+  if (d.idea) return ideaAction(d.idea, d.do);
+  switch(d.act){
+    case 'accept': { const n=node(S.sel,p); n.status='done'; logDecision(p,`验收通过 ${n.id} ${n.title}`); toast('已验收，进度 +1'); return render(); }
+    case 'accept-m': { const n=node('2.1.1',projects.p1); n.status='done'; logDecision(projects.p1,`手机端验收通过 ${n.id}`); toast('已验收'); return render(); }
+    case 'reject': S.rejecting=true; return render();
+    case 'reject-cancel': S.rejecting=false; return render();
+    case 'reject-send': { const n=node(S.sel,p); const why=($('#rejTxt').value||'').trim()||'效果不符合预期'; n.status='queued'; n.ev=null; logDecision(p,`打回 ${n.id}：${why}`); S.rejecting=false; toast('已打回，原因已写入决策记录，AI 会带着反馈重做'); return render(); }
+    case 'prop-ok': applyProposal(p); return render();
+    case 'prop-no': S.proposal=null; return render();
+    case 'gen': generateTree(p); toast('目标树已生成，只做了计划，还没有花钱'); return render();
+    case 'capture': {
+      const txt = ($('#capTxt').value||'').trim(); if(!txt){ toast('先写点什么或者说点什么'); return; }
+      ideas.unshift({id:'i'+Date.now(), src:S.recordedVoice?'网页 · 语音':'网页 · 打字', at:'刚刚', dur:S.recordedVoice?'0:07':null, text:txt, ai:triage(txt), state:'new'});
+      S.draft=''; S.recordedVoice=false; toast('记下了，AI 已给出分流建议'); return render();
+    }
+  }
+  if (t.id==='micBtn'){
+    S.draft = $('#capTxt').value;
+    if (!S.recording){ S.recording=true; render(); clearTimeout(S.recT); S.recT=setTimeout(()=>{ if(!S.recording) return; S.recording=false; S.recordedVoice=true; S.draft='给猫粮做个库存，快吃完的时候提醒我下单'; render(); toast('转写完成，可以改一下再记下来'); },2200); }
+    else { S.recording=false; render(); }
+    return;
+  }
+  if (t.id==='phoneMic'){
+    if (!S.phoneRec){ S.phoneRec=true; render(); setTimeout(()=>{ S.phoneRec=false; ideas.unshift({id:'i'+Date.now(),src:'iOS 语音',at:'刚刚',dur:'0:05',text:'周末市集地图加一个“下雨取消”的提醒',ai:{kind:'attach',pid:'p3',node:'0',label:'周末市集地图 → 补充需求'},state:'new'}); render(); toast('记下了（模拟语音转写）'); },1800); }
+    return;
+  }
+});
+document.addEventListener('change', e => {
+  const d = e.target.dataset; if (d.route){ manualRoute[d.route]=e.target.value; toast(`${e.target.closest('tr').querySelector('b').textContent} 改用 ${e.target.value}`); }
+});
+document.addEventListener('keydown', e => {
+  const r = e.target.closest?.('.trow'); if (r && (e.key==='Enter'||e.key===' ') && e.target===r){ e.preventDefault(); r.click(); }
+});
+render();
+</script>

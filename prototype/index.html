@@ -39,6 +39,35 @@ h1{font-size:20px;margin:0 0 4px;font-weight:700}
 .mic.rec{background:var(--warn);color:#fff;border-color:var(--warn)}
 .ask{margin-top:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:14px}
 .ask .opt{margin:6px 6px 0 0}
+/* OKR tree */
+.treebox{overflow-x:auto;padding:22px 12px 16px}
+.okr{min-width:720px;display:flex;flex-direction:column;align-items:center}
+.onode{background:var(--accent);color:#fff;border-radius:12px;padding:14px 18px;display:flex;gap:14px;align-items:center;max-width:460px;box-shadow:0 6px 18px -8px var(--accent)}
+.onode .lab{font-size:11px;letter-spacing:.1em;opacity:.8}
+.onode .tx{font-size:16px;font-weight:700;line-height:1.4}
+.ring{flex:none}
+.stem{width:0;height:26px;border-left:1.5px solid var(--ink2);opacity:.45}
+.krs{list-style:none;margin:0;padding:0;display:flex;width:100%;justify-content:center}
+.krs>li{position:relative;flex:1;max-width:320px;padding:26px 10px 0;display:flex;flex-direction:column;align-items:center}
+.krs>li::before{content:"";position:absolute;top:0;left:0;right:0;border-top:1.5px solid var(--ink2);opacity:.45}
+.krs>li:first-child::before{left:50%}.krs>li:last-child::before{right:50%}.krs>li:only-child::before{display:none}
+.krs>li::after{content:"";position:absolute;top:0;left:50%;height:26px;border-left:1.5px solid var(--ink2);opacity:.45}
+.kr{width:100%;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:10px;padding:10px 12px}
+.kr .lab{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.06em}
+.kr .t{font-weight:700;margin:2px 0}
+.kr .m{font-size:12.5px;color:var(--ink2)}
+.kr .pct{font-size:12px;color:var(--ink2);margin-top:4px;display:flex;justify-content:space-between}
+.kr.done{border-top-color:var(--ok)}.kr.done .lab{color:var(--ok)}.kr.done .bar i{background:var(--ok)}
+.kr.wait{border-top-color:var(--warn)}.kr.wait .lab{color:var(--warn)}
+.tks{list-style:none;margin:12px 0 0;padding:0 0 0 16px;align-self:stretch;border-left:1.5px solid var(--line);margin-left:22px;display:flex;flex-direction:column;gap:8px}
+.tks li{position:relative}
+.tks li::before{content:"";position:absolute;left:-16px;top:50%;width:14px;border-top:1.5px solid var(--line)}
+.tn{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;transition:transform .15s,border-color .15s}
+.tn:hover{transform:translateY(-1px);border-color:var(--ink2)}
+.tn.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.tn.done{background:var(--g)}.tn.wait{border-color:var(--warn)}
+.tn .c{margin-left:auto;font-size:11.5px;color:var(--ink2);white-space:nowrap}
+.treefoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
 /* project */
 .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
@@ -98,20 +127,20 @@ let cards=[
 ];
 const projects={
  p1:{name:'PawLog 喂猫记录',spent:12.40,remain:'$14–20',eta:'9 月 30 日',tok:'1.6M',
-  goal:'让养猫的家庭一起记录喂食，到点提醒',
+  goal:'让养猫的家庭不再忘喂，也不再重复喂',
   miles:[
-   {t:'一个人能记录喂食',tasks:[
+   {t:'一个人能记录喂食',kr:'2 步内记完一次喂食',tasks:[
      {id:'t1',t:'数据模型与 API',st:'done',m:'Claude Sonnet 5',cost:1.84},
      {id:'t2',t:'记录喂食页面',st:'done',m:'Claude Sonnet 5',cost:2.10}]},
-   {t:'家人共享',tasks:[
+   {t:'家人共享',kr:'80% 的家庭邀请到 2 人以上',tasks:[
      {id:'t3',t:'邀请链接与加入流程',st:'done',m:'Claude Sonnet 5',cost:2.95},
      {id:'t4',t:'多台手机实时同步',st:'wait',m:'Codex',cost:2.40}]},
-   {t:'到点提醒',tasks:[
+   {t:'到点提醒',kr:'提醒准时率 ≥ 95%',tasks:[
      {id:'t5',t:'推送提醒',st:'todo',m:'Claude Sonnet 5',est:'$2.4–3.6'},
      {id:'t6',t:'猫粮余量估算',st:'todo',m:'Claude Haiku 4.5',est:'$1.0–1.6'}]}]},
- p2:{name:'播客周报',spent:4.20,remain:'$3–5',eta:'9 月 27 日',tok:'0.6M',goal:'每周一收到订阅播客的摘要',
-  miles:[{t:'抓取与转写',tasks:[{id:'q1',t:'拉取 RSS',st:'done',m:'Claude Haiku 4.5',cost:.9},{id:'q2',t:'音频转文字',st:'done',m:'Claude Sonnet 5',cost:2.1}]},
-   {t:'摘要邮件',tasks:[{id:'q3',t:'每集 5 条要点',st:'todo',m:'Claude Sonnet 5',est:'$0.6–1.0'}]}]}
+ p2:{name:'播客周报',spent:4.20,remain:'$3–5',eta:'9 月 27 日',tok:'0.6M',goal:'每周一 8 点前收到一封 3 分钟读完的播客摘要',
+  miles:[{t:'抓取与转写',kr:'覆盖全部订阅源，一集 1 小时内转完',tasks:[{id:'q1',t:'拉取 RSS',st:'done',m:'Claude Haiku 4.5',cost:.9},{id:'q2',t:'音频转文字',st:'done',m:'Claude Sonnet 5',cost:2.1}]},
+   {t:'摘要邮件',kr:'每集 5 条要点，每条 ≤ 40 字',tasks:[{id:'q3',t:'每集 5 条要点',st:'todo',m:'Claude Sonnet 5',est:'$0.6–1.0'}]}]}
 };
 const RUN={
  m1:{steps:['读你的卡片','整理成需求','准备数据'],screen:'done',result:'需求和数据已整理'},
@@ -157,7 +186,7 @@ function renderProject(){
  const p=P(), ts=allTasks(p), done=ts.filter(t=>t.st==='done').length, cur=task(S.tid)||ts[0];
  const wait=ts.filter(t=>t.st==='wait').length;
  const next=ts.find(t=>t.st==='todo');
- $('#main').innerHTML=`<h1>${esc(p.name)}</h1><p class="sub">目标：${esc(p.goal)}</p>
+ $('#main').innerHTML=`<h1>${esc(p.name)}</h1><p class="sub">一个目标，拆成几个可衡量的关键结果，再拆成 agent 能做的任务。（示例数据）</p>
  <div class="stats">
   <div class="stat"><b>${done} / ${ts.length}</b><span>任务完成</span><div class="bar"><i style="width:${done/ts.length*100}%"></i></div></div>
   <div class="stat"><b>$${p.spent.toFixed(2)}</b><span>已花 · ${p.tok} tokens</span></div>
@@ -165,14 +194,20 @@ function renderProject(){
   <div class="stat"><b>${p.eta}</b><span>预计完成</span></div>
   <div class="stat"><b style="color:${wait?'var(--warn)':'inherit'}">${wait?`${wait} 件等你`:'没有卡住'}</b><span>卡在哪</span></div>
  </div>
- <div class="two">
-  <div class="box"><h2>计划</h2>
-   ${p.miles.map(m=>`<div class="goal">${esc(m.t)}</div>${m.tasks.map(t=>`<button class="task ${t.id===cur.id?'on':''}" data-t="${t.id}">${icon(t.st)}${esc(t.t)}<span class="m">${esc(t.m)} · ${t.cost?'$'+t.cost.toFixed(2):t.est}</span></button>`).join('')}`).join('')}
-   <div class="review">${next?`<button class="btn pri" data-start="${next.id}">批准并开始：${esc(next.t)} · 预计 ${next.est}</button>`:'<span class="note">所有任务都开始了</span>'}
-   <p class="note" style="margin-top:6px">花钱之前都要你点一下。</p></div>
-  </div>
-  <div class="box">${agentPanel(cur)}</div>
+ <div class="box treebox">${okrTree(p,cur)}
+  <div class="treefoot"><span class="note">点任意任务，下面看 agent 在做什么。花钱之前都要你点一下。</span>
+   ${next?`<button class="btn pri" data-start="${next.id}">批准并开始：${esc(next.t)} · 预计 ${next.est}</button>`:'<span class="note">所有任务都开始了</span>'}</div></div>
+ <div class="box" style="margin-top:16px">${agentPanel(cur)}</div>
  </div>`;
+}
+function ring(f,c){const r=18,L=2*Math.PI*r;return `<svg class="ring" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="${r}" fill="none" stroke="${c}" stroke-opacity=".3" stroke-width="4"/><circle cx="24" cy="24" r="${r}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 24 24)"/><text x="24" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="${c}">${Math.round(f*100)}%</text></svg>`}
+function okrTree(p,cur){
+ const fr=m=>m.tasks.filter(t=>t.st==='done').length/m.tasks.length;
+ const of=p.miles.reduce((a,m)=>a+fr(m),0)/p.miles.length;
+ return `<div class="okr"><div class="onode">${ring(of,'#fff')}<div><div class="lab">OBJECTIVE · 目标</div><div class="tx">${esc(p.goal)}</div></div></div><div class="stem"></div>
+ <ul class="krs">${p.miles.map((m,i)=>{const f=fr(m),w=m.tasks.some(t=>t.st==='wait');return `<li><div class="kr ${f===1?'done':w?'wait':''}"><div class="lab">KR${i+1}${f===1?' · 已达成':w?' · 等你':''}</div><div class="t">${esc(m.t)}</div><div class="m">衡量：${esc(m.kr||'—')}</div>
+  <div class="bar"><i style="width:${f*100}%"></i></div><div class="pct"><span>${m.tasks.filter(t=>t.st==='done').length} / ${m.tasks.length} 任务</span><span>${Math.round(f*100)}%</span></div></div>
+  <ul class="tks">${m.tasks.map(t=>`<li><button class="tn ${t.st} ${t.id===cur.id?'on':''}" data-t="${t.id}">${icon(t.st)}<span>${esc(t.t)}</span><span class="c">${esc(t.m.replace('Claude ',''))} · ${t.cost?'$'+t.cost.toFixed(2):t.est}</span></button></li>`).join('')}</ul></li>`}).join('')}</ul></div>`;
 }
 function agentPanel(t){
  const r=RUN[t.id];
@@ -224,8 +259,8 @@ document.addEventListener('click',e=>{
   const picked=cards.filter(c=>S.sel.has(c.id));
   const nm=topic();const pid='p'+Date.now();
   projects[pid]={name:nm,spent:0,remain:'$11–20',eta:'10 月 8 日',tok:'0',goal:nm+'（第一版：'+d.ans+'）',
-   miles:[{t:'第一版能用',tasks:[{id:'m1',t:'整理需求和数据',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'},{id:'m2',t:d.ans+'主页面',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.2'}]},
-    {t:'打磨',tasks:[{id:'m3',t:'细节和边界情况',st:'todo',m:'Claude Sonnet 5',est:'$1.6–2.6'}]}]};
+   miles:[{t:'第一版能用',kr:'你自己连续用 7 天',tasks:[{id:'m1',t:'整理需求和数据',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'},{id:'m2',t:d.ans+'主页面',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.2'}]},
+    {t:'打磨',kr:'没有卡住你的问题',tasks:[{id:'m3',t:'细节和边界情况',st:'todo',m:'Claude Sonnet 5',est:'$1.6–2.6'}]}]};
   cards=cards.filter(c=>!S.sel.has(c.id));S.sel.clear();S.asking=false;
   S.view='project';S.pid=pid;S.tid='m1';toast(`已从 ${picked.length} 张卡片生成项目，还没花钱`);render();
  }

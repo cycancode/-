@@ -1,5 +1,5 @@
 <title>Sprout 原型</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
 <style>
 :root{--bg:#F5F6F7;--panel:#FFFFFF;--ink:#16181C;--ink2:#5B616B;--line:#E2E4E8;--accent:#2F5BEA;--accent-soft:#E8EEFD;--ok:#1F8A4C;--warn:#B26A00;
   --y:#FFF6D6;--b:#E6F0FF;--g:#E6F6EC;--p:#F2E9FF;--font:"Noto Sans SC","PingFang SC",system-ui,sans-serif}
@@ -40,34 +40,57 @@ h1{font-size:20px;margin:0 0 4px;font-weight:700}
 .ask{margin-top:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:14px}
 .ask .opt{margin:6px 6px 0 0}
 /* OKR tree */
-.treebox{overflow-x:auto;padding:22px 12px 16px}
-.okr{min-width:720px;display:flex;flex-direction:column;align-items:center}
-.onode{background:var(--accent);color:#fff;border-radius:12px;padding:14px 18px;display:flex;gap:14px;align-items:center;max-width:460px;box-shadow:0 6px 18px -8px var(--accent)}
-.onode .lab{font-size:11px;letter-spacing:.1em;opacity:.8}
-.onode .tx{font-size:16px;font-weight:700;line-height:1.4}
-.ring{flex:none}
-.stem{width:0;height:26px;border-left:1.5px solid var(--ink2);opacity:.45}
-.krs{list-style:none;margin:0;padding:0;display:flex;width:100%;justify-content:center}
-.krs>li{position:relative;flex:1;max-width:320px;padding:26px 10px 0;display:flex;flex-direction:column;align-items:center}
-.krs>li::before{content:"";position:absolute;top:0;left:0;right:0;border-top:1.5px solid var(--ink2);opacity:.45}
-.krs>li:first-child::before{left:50%}.krs>li:last-child::before{right:50%}.krs>li:only-child::before{display:none}
-.krs>li::after{content:"";position:absolute;top:0;left:50%;height:26px;border-left:1.5px solid var(--ink2);opacity:.45}
-.kr{width:100%;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:10px;padding:10px 12px}
-.kr .lab{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.06em}
-.kr .t{font-weight:700;margin:2px 0}
-.kr .m{font-size:12.5px;color:var(--ink2)}
-.kr .pct{font-size:12px;color:var(--ink2);margin-top:4px;display:flex;justify-content:space-between}
-.kr.done{border-top-color:var(--ok)}.kr.done .lab{color:var(--ok)}.kr.done .bar i{background:var(--ok)}
-.kr.wait{border-top-color:var(--warn)}.kr.wait .lab{color:var(--warn)}
-.tks{list-style:none;margin:12px 0 0;padding:0 0 0 16px;align-self:stretch;border-left:1.5px solid var(--line);margin-left:22px;display:flex;flex-direction:column;gap:8px}
-.tks li{position:relative}
-.tks li::before{content:"";position:absolute;left:-16px;top:50%;width:14px;border-top:1.5px solid var(--line)}
-.tn{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;transition:transform .15s,border-color .15s}
-.tn:hover{transform:translateY(-1px);border-color:var(--ink2)}
-.tn.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.tn.done{background:var(--g)}.tn.wait{border-color:var(--warn)}
-.tn .c{margin-left:auto;font-size:11.5px;color:var(--ink2);white-space:nowrap}
-.treefoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}
+.box.treebox{padding:0;overflow:hidden;border:0;background:#0E1220}
+.stage{position:relative;overflow-x:auto;padding:34px 20px 26px;color:#E9ECF5;
+ background:radial-gradient(ellipse at 50% 0%,rgba(91,140,255,.22),transparent 60%),radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px) 0 0/22px 22px,#0E1220}
+.okr{position:relative;min-width:760px;display:flex;flex-direction:column;align-items:center;gap:46px}
+.links{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.links path{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1.6}
+.links path.ok{stroke:rgba(61,220,151,.45)}
+.links path.run,.links path.wait{stroke-dasharray:6 6;animation:flow 1.2s linear infinite}
+.links path.run{stroke:#5B8CFF}.links path.wait{stroke:#FFB547}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.onode{position:relative;z-index:1;display:flex;gap:18px;align-items:center;max-width:520px;padding:18px 24px;border-radius:18px;
+ background:linear-gradient(145deg,#1B2750,#121833);border:1px solid rgba(124,155,255,.45);box-shadow:0 0 0 6px rgba(91,140,255,.08),0 18px 50px -12px rgba(91,140,255,.55)}
+.onode .lab{font:600 11px/1 "Bricolage Grotesque",var(--font);letter-spacing:.18em;color:#8FA8FF}
+.onode .tx{font-size:19px;font-weight:700;line-height:1.4;margin-top:6px;color:#fff}
+.onode .meta{font-size:12px;color:#9AA3BD;margin-top:6px}
+.ring text{font-family:"Bricolage Grotesque",var(--font)}
+.krs{list-style:none;margin:0;padding:0;display:flex;gap:22px;width:100%;justify-content:center;position:relative;z-index:1}
+.krs>li{flex:1;max-width:300px;display:flex;flex-direction:column;gap:22px}
+.kr{position:relative;border-radius:14px;padding:14px 16px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(4px)}
+.kr .hd{display:flex;align-items:center;justify-content:space-between}
+.kr .lab{font:700 11px/1 "Bricolage Grotesque",var(--font);letter-spacing:.12em;padding:4px 8px;border-radius:20px;background:rgba(91,140,255,.16);color:#8FA8FF}
+.kr .stt{font-size:11.5px;color:#9AA3BD}
+.kr .t{font-weight:700;font-size:15px;margin:10px 0 2px;color:#fff}
+.kr .m{font-size:12.5px;color:#9AA3BD}
+.kr .big{display:flex;align-items:baseline;justify-content:space-between;margin-top:10px}
+.kr .big b{font:600 30px/1 "Bricolage Grotesque",var(--font);color:#fff}.kr .big b small{font-size:15px;color:#9AA3BD}
+.kr .big span{font-size:12px;color:#9AA3BD}
+.kbar{height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+.kbar i{display:block;height:100%;border-radius:2px;background:#5B8CFF;box-shadow:0 0 12px #5B8CFF}
+.kr.done{border-color:rgba(61,220,151,.35)}.kr.done .lab{background:rgba(61,220,151,.14);color:#3DDC97}.kr.done .kbar i{background:#3DDC97;box-shadow:0 0 12px #3DDC97}
+.kr.wait{border-color:rgba(255,181,71,.45);box-shadow:0 0 30px -10px rgba(255,181,71,.5)}.kr.wait .lab{background:rgba(255,181,71,.14);color:#FFB547}
+.tks{list-style:none;margin:0;padding:0 0 0 26px;display:flex;flex-direction:column;gap:10px}
+.tn{width:100%;display:flex;align-items:center;gap:9px;text-align:left;border-radius:10px;padding:8px 11px;font-size:13px;color:#E9ECF5;
+ background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);transition:transform .15s,border-color .15s,background .15s}
+.tn:hover{transform:translateX(3px);border-color:rgba(255,255,255,.25)}
+.tn.on{border-color:#5B8CFF;background:rgba(91,140,255,.12);box-shadow:0 0 0 3px rgba(91,140,255,.18)}
+.tn .c{margin-left:auto;font-size:11px;color:#8890A6;white-space:nowrap}
+.tn .sd{width:9px;height:9px;border-radius:50%;flex:none;background:rgba(255,255,255,.25)}
+.tn.done .sd{background:#3DDC97;box-shadow:0 0 8px #3DDC97}
+.tn.wait .sd{background:#FFB547;box-shadow:0 0 8px #FFB547}
+.tn.run .sd{background:#5B8CFF;box-shadow:0 0 8px #5B8CFF;animation:pl 1.2s ease-in-out infinite}
+.tn.done span:nth-child(2){color:#B8C0D4}
+@keyframes pl{50%{opacity:.35}}
+.okr.anim .l0{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.okr.anim .l1{animation:rise .5s .25s cubic-bezier(.2,.8,.2,1) both}
+.okr.anim .l2{animation:rise .45s calc(.5s + var(--i)*.05s) cubic-bezier(.2,.8,.2,1) both}
+.okr.anim .links{animation:fade .6s .7s both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes fade{from{opacity:0}}
+.treefoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;background:var(--panel);border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.okr *,.links path{animation:none!important}}
 /* project */
 .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
@@ -115,7 +138,7 @@ h1{font-size:20px;margin:0 0 4px;font-weight:700}
 
 <script>
 /* ---------- 示例数据 ---------- */
-const S={view:'canvas',sel:new Set(),asking:false,pid:'p1',tid:'t4',rec:false};
+const S={seen:new Set(),view:'canvas',sel:new Set(),asking:false,pid:'p1',tid:'t4',rec:false};
 let cards=[
  {id:1,x:30,y:30,c:'y',t:'家里人一起记猫吃了没，到点提醒',src:'语音 · 周一'},
  {id:2,x:250,y:60,c:'y',t:'猫粮快吃完时提醒我买',src:'语音 · 今天'},
@@ -200,15 +223,32 @@ function renderProject(){
  <div class="box" style="margin-top:16px">${agentPanel(cur)}</div>
  </div>`;
 }
-function ring(f,c){const r=18,L=2*Math.PI*r;return `<svg class="ring" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="${r}" fill="none" stroke="${c}" stroke-opacity=".3" stroke-width="4"/><circle cx="24" cy="24" r="${r}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 24 24)"/><text x="24" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="${c}">${Math.round(f*100)}%</text></svg>`}
+function ring(f,c,z){const r=z/2-5,L=2*Math.PI*r,h=z/2;return `<svg class="ring" width="${z}" height="${z}" viewBox="0 0 ${z} ${z}"><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 ${h} ${h})" style="filter:drop-shadow(0 0 6px ${c})"/><text x="${h}" y="${h+6}" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">${Math.round(f*100)}%</text></svg>`}
 function okrTree(p,cur){
  const fr=m=>m.tasks.filter(t=>t.st==='done').length/m.tasks.length;
- const of=p.miles.reduce((a,m)=>a+fr(m),0)/p.miles.length;
- return `<div class="okr"><div class="onode">${ring(of,'#fff')}<div><div class="lab">OBJECTIVE · 目标</div><div class="tx">${esc(p.goal)}</div></div></div><div class="stem"></div>
- <ul class="krs">${p.miles.map((m,i)=>{const f=fr(m),w=m.tasks.some(t=>t.st==='wait');return `<li><div class="kr ${f===1?'done':w?'wait':''}"><div class="lab">KR${i+1}${f===1?' · 已达成':w?' · 等你':''}</div><div class="t">${esc(m.t)}</div><div class="m">衡量：${esc(m.kr||'—')}</div>
-  <div class="bar"><i style="width:${f*100}%"></i></div><div class="pct"><span>${m.tasks.filter(t=>t.st==='done').length} / ${m.tasks.length} 任务</span><span>${Math.round(f*100)}%</span></div></div>
-  <ul class="tks">${m.tasks.map(t=>`<li><button class="tn ${t.st} ${t.id===cur.id?'on':''}" data-t="${t.id}">${icon(t.st)}<span>${esc(t.t)}</span><span class="c">${esc(t.m.replace('Claude ',''))} · ${t.cost?'$'+t.cost.toFixed(2):t.est}</span></button></li>`).join('')}</ul></li>`}).join('')}</ul></div>`;
+ const of=p.miles.reduce((a,m)=>a+fr(m),0)/p.miles.length, ts=allTasks(p);
+ const anim=!S.seen.has(S.pid);S.seen.add(S.pid);let k=0;
+ return `<div class="stage"><div class="okr ${anim?'anim':''}" id="okr"><svg class="links" id="links"></svg>
+ <div class="onode l0" id="n-o">${ring(of,'#8FA8FF',64)}<div><div class="lab">OBJECTIVE</div><div class="tx">${esc(p.goal)}</div><div class="meta">${p.miles.length} 个关键结果 · ${ts.length} 个任务 · 已花 $${p.spent.toFixed(2)}</div></div></div>
+ <ul class="krs">${p.miles.map((m,i)=>{const f=fr(m),w=m.tasks.some(t=>t.st==='wait'),r=m.tasks.some(t=>t.st==='run'),d=m.tasks.filter(t=>t.st==='done').length;
+  return `<li><div class="kr l1 ${f===1?'done':w?'wait':''}" id="n-k${i}" data-cls="${f===1?'ok':w?'wait':r?'run':''}"><div class="hd"><span class="lab">KR ${i+1}</span><span class="stt">${f===1?'已达成':w?'等你验收':r?'执行中':'未开始'}</span></div>
+  <div class="t">${esc(m.t)}</div><div class="m">${esc(m.kr||'')}</div>
+  <div class="big"><b>${Math.round(f*100)}<small>%</small></b><span>${d} / ${m.tasks.length} 任务</span></div><div class="kbar"><i style="width:${f*100}%"></i></div></div>
+  <ul class="tks">${m.tasks.map(t=>`<li class="l2" style="--i:${k++}"><button class="tn ${t.st} ${t.id===cur.id?'on':''}" data-t="${t.id}" data-k="${i}"><span class="sd"></span><span>${esc(t.t)}</span><span class="c">${esc(t.m.replace('Claude ',''))} · ${t.cost?'$'+t.cost.toFixed(2):t.est}</span></button></li>`).join('')}</ul></li>`}).join('')}</ul></div></div>`;
 }
+function drawLinks(){
+ const box=document.getElementById('okr'),svg=document.getElementById('links');if(!box||!svg)return;
+ const B=box.getBoundingClientRect(),R=el=>{const r=el.getBoundingClientRect();return {l:r.left-B.left,t:r.top-B.top,w:r.width,h:r.height}};
+ const o=R(document.getElementById('n-o'));let d='';
+ box.querySelectorAll('.kr').forEach((kr,i)=>{const k=R(kr),x1=o.l+o.w/2,y1=o.t+o.h,x2=k.l+k.w/2,y2=k.t,my=(y1+y2)/2;
+  d+=`<path class="${kr.dataset.cls}" d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}"/>`;
+  box.querySelectorAll(`.tn[data-k="${i}"]`).forEach(tn=>{const t=R(tn),sx=k.l+14,sy=k.t+k.h,ex=t.l,ey=t.t+t.h/2;
+   const c=tn.classList.contains('done')?'ok':tn.classList.contains('wait')?'wait':tn.classList.contains('run')?'run':'';
+   d+=`<path class="${c}" d="M${sx},${sy} C${sx},${ey} ${sx},${ey} ${ex},${ey}"/>`});
+ });
+ svg.setAttribute('width',box.scrollWidth);svg.setAttribute('height',box.scrollHeight);svg.innerHTML=d;
+}
+addEventListener('resize',()=>drawLinks());
 function agentPanel(t){
  const r=RUN[t.id];
  const head=`<div class="row"><h2 style="margin:0">${esc(t.t)}</h2><span class="chip">${esc(t.m)}</span></div>`;
@@ -235,7 +275,7 @@ function runTask(id){
 }
 
 /* ---------- render & events ---------- */
-function render(){renderNav();S.view==='canvas'?renderCanvas():renderProject();bindBoard()}
+function render(){renderNav();S.view==='canvas'?renderCanvas():renderProject();bindBoard();drawLinks();document.fonts&&document.fonts.ready.then(drawLinks)}
 function bindBoard(){
  const b=$('#board');if(!b)return;
  b.querySelectorAll('.card').forEach(el=>{

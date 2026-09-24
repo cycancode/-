@@ -119,13 +119,41 @@ h1{font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 8px;font-weig
 @keyframes rise{from{opacity:0;transform:translateY(12px)}}
 @keyframes fade{from{opacity:0}}
 .tn.ep{font-weight:600}
-.sub{list-style:none;margin:6px 0 4px 12px;padding:0 0 0 12px;border-left:1.5px solid var(--line);display:flex;flex-direction:column;gap:6px}
-.sub .tn{padding:7px 10px;font-size:13px}
+.subl{list-style:none;margin:6px 0 4px 12px;padding:0 0 0 12px;border-left:1.5px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.subl .tn{padding:7px 10px;font-size:13px;flex-wrap:wrap;row-gap:2px}
+.subl .tn span:nth-child(2){white-space:normal;flex:1 1 60%}
 .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:22px 28px 0}
 .ph i{display:block;height:4px;border-radius:2px;background:var(--track);margin-bottom:8px}
 .ph.on i{background:var(--accent)}
 .ph b{display:block;font-size:14px;font-weight:600}.ph span{font-size:12px;color:var(--ink2)}
 .ph.on b{color:var(--accent)}
+.tn.ep{flex-wrap:wrap;row-gap:2px}
+.tn .eg{flex-basis:100%;padding-left:18px;font-size:12px;font-weight:400;color:var(--ink2);white-space:normal}
+.req{margin-top:6px;font-size:12px;color:var(--ink2);display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.req span{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:0 6px;font-weight:600;color:var(--accent)}
+.stepper{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0 0 20px;background:var(--panel);border-radius:22px;padding:18px 20px;box-shadow:var(--shadow)}
+.stp{border:0;background:none;text-align:left;display:flex;gap:12px;align-items:center;padding:6px 10px;border-radius:14px;position:relative}
+.stp:hover{background:var(--bg)}.stp.on{background:var(--accent-soft)}
+.stp .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:14px;background:var(--track);flex:none}
+.stp.done .n{background:var(--ok);color:#fff}.stp.cur .n{background:var(--accent);color:#fff}
+.stp b{display:block;font-size:15px;font-weight:600}.stp small{font-size:12px;color:var(--ink2)}
+.deliv{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.deliv .who{font-size:13px;color:var(--ink2)}
+.signed{font-size:13px;font-weight:600;color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);border-radius:980px;padding:4px 12px}
+.sec{margin-top:26px}.sec h3{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0 0 12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cardx{background:var(--bg);border-radius:16px;padding:16px}
+.cardx b{display:block;font-size:15px;margin-bottom:4px}.cardx p{margin:0;font-size:13.5px;color:var(--ink2)}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{white-space:nowrap;text-align:left;font-size:12px;font-weight:600;color:var(--ink2);padding:8px 12px 8px 0;border-bottom:1px solid var(--line)}
+.tbl td{padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tscroll{overflow-x:auto}
+.ins{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ins .id,.rid{font-weight:700;color:var(--accent);flex:none;width:28px}
+.prio{font-size:12px;font-weight:600;border-radius:980px;padding:2px 10px;white-space:nowrap}
+.prio.m{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}.prio.s{background:var(--track);color:var(--ink)}.prio.l{color:var(--ink2);border:1px solid var(--line)}
+.nextbar{display:flex;justify-content:flex-end;margin-top:24px}
+@media (max-width:760px){.stepper{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
 .treefoot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 26px;border-top:1px solid var(--line)}
 @media (max-width:760px){
   .app{grid-template-columns:1fr}
@@ -148,7 +176,7 @@ h1{font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 8px;font-weig
 
 <script>
 /* ---------- 示例数据 ---------- */
-const S={open:new Set(),seen:new Set(),view:'project',pid:'gp',tid:'g4',sel:new Set(),asking:false,rec:false};
+const S={stage:'research',open:new Set(),seen:new Set(),view:'project',pid:'gp',tid:'g4',sel:new Set(),asking:false,rec:false};
 let cards=[
  {id:1,x:30,y:30,c:'y',t:'家里人一起记猫吃了没，到点提醒',src:'语音 · 周一'},
  {id:2,x:250,y:60,c:'y',t:'猫粮快吃完时提醒我买',src:'语音 · 今天'},
@@ -159,23 +187,23 @@ let cards=[
  {id:7,x:40,y:330,c:'p',t:'最近咖啡喝太多了',src:'语音 · 昨天'},
 ];
 const projects={
- gp:{name:'GrowPal 健康助手',spent:38.60,remain:'$180–260',eta:'12 月 15 日',tok:'5.2M',
+ gp:{stages:true,name:'GrowPal 健康助手',spent:38.60,remain:'$180–260',eta:'12 月 15 日',tok:'5.2M',
   goal:'让用户每天花 1 分钟，就能管好饮食、睡眠和运动',
   phases:[{t:'MVP',d:'10 月',on:true},{t:'内测 50 人',d:'11 月'},{t:'上架 App Store',d:'12 月'}],
   miles:[
-   {t:'记录足够轻',kr:'一次记录 ≤ 10 秒',epics:[
-     {t:'账号与数据底座',tasks:[{id:'g1',t:'登录与账号',st:'done',m:'Claude Sonnet 5',cost:3.20},{id:'g2',t:'数据库与 API',st:'done',m:'Claude Sonnet 5',cost:5.40},{id:'g3',t:'Apple Health 同步',st:'run',step:2,m:'Codex',cost:2.10}]},
-     {t:'饮食记录',tasks:[{id:'g4',t:'拍照识别食物',st:'wait',m:'Claude Opus 5.5',cost:6.80},{id:'g5',t:'常用餐一键记录',st:'done',m:'Claude Haiku 4.5',cost:1.10},{id:'g6',t:'热量与营养计算',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.0'}]},
-     {t:'睡眠与运动',tasks:[{id:'g7',t:'睡眠数据导入',st:'todo',m:'Claude Sonnet 5',est:'$1.5–2.5'},{id:'g8',t:'运动记录',st:'todo',m:'Claude Haiku 4.5',est:'$1.0–1.6'}]}]},
-   {t:'AI 教练有用',kr:'70% 用户每周采纳 ≥ 1 条建议',epics:[
-     {t:'教练对话',tasks:[{id:'g9',t:'对话界面',st:'done',m:'Claude Sonnet 5',cost:4.30},{id:'g10',t:'健康知识库',st:'run',step:1,m:'Claude Opus 5.5',cost:3.90},{id:'g11',t:'个性化建议',st:'todo',m:'Claude Opus 5.5',est:'$6–9'}]},
-     {t:'安全与合规',tasks:[{id:'g12',t:'医疗免责与建议边界',st:'todo',m:'Claude Opus 5.5',est:'$1.5–2.5'},{id:'g13',t:'健康数据加密',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.0'}]}]},
-   {t:'用户留得住',kr:'次周留存 ≥ 40%',epics:[
-     {t:'提醒与习惯',tasks:[{id:'g14',t:'每日提醒',st:'todo',m:'Claude Haiku 4.5',est:'$1.0–1.6'},{id:'g15',t:'连续打卡',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'}]},
-     {t:'每周报告',tasks:[{id:'g16',t:'周报生成',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.2'},{id:'g17',t:'分享卡片',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.2'}]}]},
-   {t:'顺利上架',kr:'一次通过 App Store 审核',epics:[
-     {t:'质量',tasks:[{id:'g18',t:'端到端测试',st:'todo',m:'Claude Sonnet 5',est:'$3–5'},{id:'g19',t:'性能与耗电优化',st:'todo',m:'Codex',est:'$2–4'}]},
-     {t:'上架准备',tasks:[{id:'g20',t:'隐私政策与健康数据说明',st:'todo',m:'Claude Opus 5.5',est:'$1–2'},{id:'g21',t:'商店截图与文案',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'},{id:'g22',t:'提交审核',st:'todo',m:'Claude Haiku 4.5',est:'$0.3–0.6'}]}]}]},
+   {t:'记录足够轻',kr:'一次记录 ≤ 10 秒',req:'R1 R2',epics:[
+     {t:'账号与数据底座',g:'新用户 30 秒内完成注册',tasks:[{id:'g1',t:'登录与账号',st:'done',m:'Claude Sonnet 5',cost:3.20},{id:'g2',t:'数据库与 API',st:'done',m:'Claude Sonnet 5',cost:5.40},{id:'g3',t:'Apple Health 同步',st:'run',step:2,m:'Codex',cost:2.10}]},
+     {t:'饮食记录',g:'拍照到记下 ≤ 5 秒，识别准确率 ≥ 85%',tasks:[{id:'g4',t:'拍照识别食物',st:'wait',m:'Claude Opus 5.5',cost:6.80},{id:'g5',t:'常用餐一键记录',st:'done',m:'Claude Haiku 4.5',cost:1.10},{id:'g6',t:'热量与营养计算',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.0'}]},
+     {t:'睡眠与运动',g:'打开 App 就能看到昨晚睡眠',tasks:[{id:'g7',t:'睡眠数据导入',st:'todo',m:'Claude Sonnet 5',est:'$1.5–2.5'},{id:'g8',t:'运动记录',st:'todo',m:'Claude Haiku 4.5',est:'$1.0–1.6'}]}]},
+   {t:'AI 教练有用',kr:'70% 用户每周采纳 ≥ 1 条建议',req:'R3 R4 R7',epics:[
+     {t:'教练对话',g:'每天给出 1 条能马上做的建议',tasks:[{id:'g9',t:'对话界面',st:'done',m:'Claude Sonnet 5',cost:4.30},{id:'g10',t:'健康知识库',st:'run',step:1,m:'Claude Opus 5.5',cost:3.90},{id:'g11',t:'个性化建议',st:'todo',m:'Claude Opus 5.5',est:'$6–9'}]},
+     {t:'安全与合规',g:'不给诊断，健康数据全部加密',tasks:[{id:'g12',t:'医疗免责与建议边界',st:'todo',m:'Claude Opus 5.5',est:'$1.5–2.5'},{id:'g13',t:'健康数据加密',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.0'}]}]},
+   {t:'用户留得住',kr:'次周留存 ≥ 40%',req:'R5 R6',epics:[
+     {t:'提醒与习惯',g:'提醒打开率 ≥ 30%',tasks:[{id:'g14',t:'每日提醒',st:'todo',m:'Claude Haiku 4.5',est:'$1.0–1.6'},{id:'g15',t:'连续打卡',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'}]},
+     {t:'每周报告',g:'周报阅读率 ≥ 50%',tasks:[{id:'g16',t:'周报生成',st:'todo',m:'Claude Sonnet 5',est:'$2.0–3.2'},{id:'g17',t:'分享卡片',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.2'}]}]},
+   {t:'顺利上架',kr:'一次通过 App Store 审核',req:'R7',epics:[
+     {t:'质量',g:'崩溃率 < 0.5%',tasks:[{id:'g18',t:'端到端测试',st:'todo',m:'Claude Sonnet 5',est:'$3–5'},{id:'g19',t:'性能与耗电优化',st:'todo',m:'Codex',est:'$2–4'}]},
+     {t:'上架准备',g:'健康数据说明一次写对',tasks:[{id:'g20',t:'隐私政策与健康数据说明',st:'todo',m:'Claude Opus 5.5',est:'$1–2'},{id:'g21',t:'商店截图与文案',st:'todo',m:'Claude Haiku 4.5',est:'$0.8–1.4'},{id:'g22',t:'提交审核',st:'todo',m:'Claude Haiku 4.5',est:'$0.3–0.6'}]}]}]},
  p1:{name:'PawLog 喂猫记录',spent:12.40,remain:'$14–20',eta:'9 月 30 日',tok:'1.6M',
   goal:'让养猫的家庭不再忘喂，也不再重复喂',
   miles:[
@@ -240,7 +268,7 @@ function renderProject(){
  const p=P(), ts=allTasks(p), done=ts.filter(t=>t.st==='done').length, cur=task(S.tid)||ts[0];
  const wait=ts.filter(t=>t.st==='wait').length;
  const next=ts.find(t=>t.st==='todo');
- $('#main').innerHTML=`<h1>${esc(p.name)}</h1><p class="sub">${p.phases?'目标 → 关键结果 → 工作流 → 任务。工作流可以展开，执行中和等你的会自动展开。（示例数据）':'一个目标，拆成几个可衡量的关键结果，再拆成 agent 能做的任务。（示例数据）'}</p>
+ $('#main').innerHTML=`<h1>${esc(p.name)}</h1><p class="sub">${p.stages?'先调研市场，再定需求，再落实到 OKR，拆成小目标和任务。每一步都由 agent 完成，你来批准。（示例数据）':'一个目标，拆成几个可衡量的关键结果，再拆成 agent 能做的任务。（示例数据）'}</p>
  <div class="stats">
   <div class="stat"><b>${done} / ${ts.length}</b><span>任务完成</span><div class="bar"><i style="width:${done/ts.length*100}%"></i></div></div>
   <div class="stat"><b>$${p.spent.toFixed(2)}</b><span>已花 · ${p.tok} tokens</span></div>
@@ -248,11 +276,48 @@ function renderProject(){
   <div class="stat"><b>${p.eta}</b><span>预计完成</span></div>
   <div class="stat"><b style="color:${wait?'var(--warn)':'inherit'}">${wait?`${wait} 件等你`:'没有卡住'}</b><span>卡在哪</span></div>
  </div>
- <div class="box treebox">${okrTree(p,cur)}
+ ${p.stages?stepper():''}
+ ${p.stages&&S.stage==='research'?research():p.stages&&S.stage==='prd'?prd():`<div class="box treebox">${okrTree(p,cur)}
   <div class="treefoot"><span class="note">点任意任务，下面看 agent 在做什么。花钱之前都要你点一下。</span>
    ${next?`<button class="btn pri" data-start="${next.id}">批准并开始：${esc(next.t)} · 预计 ${next.est}</button>`:'<span class="note">所有任务都开始了</span>'}</div></div>
- <div class="box" style="margin-top:20px">${agentPanel(cur)}</div>
+ <div class="box" style="margin-top:20px">${agentPanel(cur)}</div>`}
  </div>`;
+}
+function stepper(){
+ const st=[['research','市场调研','你 9 月 18 日批准'],['prd','需求定义','你 9 月 20 日批准'],['okr','OKR 与执行','进行中 · MVP 阶段']];
+ return `<div class="stepper">${st.map(([k,t,d],i)=>`<button class="stp ${i<2?'done':'cur'} ${S.stage===k?'on':''}" data-stage="${k}"><span class="n">${i<2?'✓':i+1}</span><span><b>${t}</b><small>${d}</small></span></button>`).join('')}</div>`;
+}
+function research(){
+ return `<div class="box"><div class="deliv"><div><h2>市场调研报告</h2><div class="who">调研 agent · Claude Opus 5.5 · 分析了 6 款竞品和约 1,200 条应用商店评论 · 用时 42 分钟 · $3.80</div></div><span class="signed">✓ 你已批准 · 9 月 18 日</span></div>
+ <p style="font-size:17px;margin:0">结论：健康记录类 App 下载的人多，坚持用的人少。多数人放弃的原因是<b>记录太累</b>，而且记完不知道下一步该做什么。</p>
+ <div class="sec"><h3>目标用户</h3><div class="grid3">
+  <div class="cardx"><b>上班族减脂</b><p>28 岁，想减 5 公斤。没时间算热量，外卖多。</p></div>
+  <div class="cardx"><b>健身新手</b><p>刚开始练，不知道一天该吃多少蛋白质。</p></div>
+  <div class="cardx"><b>睡不好的人</b><p>经常熬夜，想知道为什么白天没精神。</p></div></div></div>
+ <div class="sec"><h3>竞品</h3><div class="tscroll"><table class="tbl"><thead><tr><th>产品</th><th>强项</th><th>弱点</th><th>我们的机会</th></tr></thead><tbody>
+  <tr><td><b>MyFitnessPal</b></td><td>食物库大</td><td>手动记录步骤多</td><td>拍照一步记完</td></tr>
+  <tr><td><b>薄荷健康</b></td><td>中文食物库全</td><td>功能多，界面杂</td><td>只做最核心的三件事</td></tr>
+  <tr><td><b>Keep</b></td><td>运动课程强</td><td>饮食和睡眠弱</td><td>饮食、睡眠、运动放在一起看</td></tr>
+  <tr><td><b>Apple 健康</b></td><td>数据全、自动</td><td>只有数据，没有建议</td><td>读它的数据，给出下一步</td></tr></tbody></table></div></div>
+ <div class="sec"><h3>关键洞察</h3>
+  <div class="ins"><span class="id">I1</span><span>差评里最常见的是“记录太麻烦”。坚持不下来，主要是因为每次记录要花一分钟以上。</span></div>
+  <div class="ins"><span class="id">I2</span><span>用户想要的是“今天该做什么”，不是更多图表。</span></div>
+  <div class="ins"><span class="id">I3</span><span>数据分散在手表、健康 App 和各种记录 App 里，没人帮他们汇总。</span></div></div>
+ <p class="note" style="margin-top:14px">竞品描述和评论数量是调研 agent 的判断，这里只作示例。</p>
+ <div class="nextbar"><button class="btn pri" data-stage="prd">下一步：需求定义</button></div></div>`;
+}
+function prd(){
+ const R=[['R1','拍照或说一句话，10 秒内记下一餐','必须','I1'],['R2','自动同步 Apple 健康的步数和睡眠','必须','I3'],['R3','每天一条能马上做的建议，比如“今晚 11 点前睡”','必须','I2'],['R4','能回答饮食和睡眠问题的 AI 教练','应该','I2'],['R5','每周一份健康报告','应该','I2'],['R6','每日提醒和连续打卡','应该','I1'],['R7','健康数据加密，不做医疗诊断','必须','合规'],['R8','好友挑战和排行榜','以后','—']];
+ const c={必须:'m',应该:'s',以后:'l'};
+ return `<div class="box"><div class="deliv"><div><h2>需求文档</h2><div class="who">产品 agent · Claude Opus 5.5 · 基于调研报告 · 用时 18 分钟 · $1.60</div></div><span class="signed">✓ 你已批准 · 9 月 20 日</span></div>
+ <p style="font-size:17px;margin:0">一句话：<b>每天 1 分钟，记下吃了什么、睡得怎样，然后告诉你下一步做什么。</b></p>
+ <div class="sec"><h3>需求清单</h3><div class="tscroll"><table class="tbl"><thead><tr><th>编号</th><th>需求</th><th>优先级</th><th>来自</th></tr></thead><tbody>
+ ${R.map(r=>`<tr><td class="rid">${r[0]}</td><td>${r[1]}</td><td><span class="prio ${c[r[2]]}">${r[2]}</span></td><td class="note">${r[3]}</td></tr>`).join('')}</tbody></table></div></div>
+ <div class="sec grid3">
+  <div class="cardx"><b>MVP 范围</b><p>R1 R2 R3 R7。先证明“记得轻、建议有用”。</p></div>
+  <div class="cardx"><b>这一版不做</b><p>社交挑战、付费会员、Android、Apple Watch 独立 App。</p></div>
+  <div class="cardx"><b>成功指标</b><p>一次记录 ≤ 10 秒 · 次周留存 ≥ 40% · 70% 用户每周采纳建议</p></div></div>
+ <div class="nextbar"><button class="btn pri" data-stage="okr">下一步：落实到 OKR</button></div></div>`;
 }
 function ring(f,c,z){const r=z/2-5,L=2*Math.PI*r,h=z/2;return `<svg class="ring" width="${z}" height="${z}" viewBox="0 0 ${z} ${z}"><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="var(--track)" stroke-width="6"/><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${L*f} ${L}" transform="rotate(-90 ${h} ${h})"/><text x="${h}" y="${h+6}" text-anchor="middle" font-size="17" font-weight="600" fill="var(--ink)">${Math.round(f*100)}%</text></svg>`}
 function okrTree(p,cur){
@@ -266,11 +331,11 @@ function okrTree(p,cur){
  <div class="onode l0" id="n-o">${ring(of,'',84)}<div><div class="lab">目标</div><div class="tx">${esc(p.goal)}</div><div class="meta">${p.miles.length} 个关键结果 · ${ts.length} 个任务${run?` · ${run} 个 agent 同时在跑`:''} · 已花 $${p.spent.toFixed(2)}</div></div></div>
  <ul class="krs">${p.miles.map((m,i)=>{const x=mt(m),f=fr(m),c=cls(x),d=x.filter(t=>t.st==='done').length;
   return `<li><div class="kr l1 ${c}" id="n-k${i}" data-cls="${c==='done'?'ok':c}"><div class="hd"><span class="lab">KR ${i+1}</span><span class="stt">${{done:'已达成',wait:'等你验收',run:'执行中'}[c]||'未开始'}</span></div>
-  <div class="t">${esc(m.t)}</div><div class="m">${esc(m.kr||'')}</div>
+  <div class="t">${esc(m.t)}</div><div class="m">${esc(m.kr||'')}</div>${m.req?`<div class="req">来自需求 ${m.req.split(' ').map(r=>`<span>${r}</span>`).join('')}</div>`:''}
   <div class="big"><b>${Math.round(f*100)}<small>%</small></b><span>${d} / ${x.length} 任务</span></div><div class="kbar"><i style="width:${f*100}%"></i></div></div>
   <ul class="tks">${m.epics?m.epics.map((e,j)=>{const key=S.pid+i+'-'+j,op=S.open.has(key),ec=cls(e.tasks),ed=e.tasks.filter(t=>t.st==='done').length;
-   return `<li class="l2" style="--i:${k++}"><button class="tn ep ${ec}" data-ep="${key}" data-k="${i}" aria-expanded="${op}"><span class="sd"></span><span>${esc(e.t)}</span><span class="c">${ed}/${e.tasks.length} ${op?'▾':'▸'}</span></button>
-   ${op?`<ul class="sub">${e.tasks.map(t=>`<li>${tn(t)}</li>`).join('')}</ul>`:''}</li>`}).join('')
+   return `<li class="l2" style="--i:${k++}"><button class="tn ep ${ec}" data-ep="${key}" data-k="${i}" aria-expanded="${op}"><span class="sd"></span><span>${esc(e.t)}</span><span class="c">${ed}/${e.tasks.length} ${op?'▾':'▸'}</span>${e.g?`<span class="eg">小目标：${esc(e.g)}</span>`:''}</button>
+   ${op?`<ul class="subl">${e.tasks.map(t=>`<li>${tn(t)}</li>`).join('')}</ul>`:''}</li>`}).join('')
   :x.map(t=>`<li class="l2" style="--i:${k++}">${tn(t,i)}</li>`).join('')}</ul></li>`}).join('')}</ul></div></div>`;
 }
 function drawLinks(){
@@ -341,6 +406,7 @@ document.addEventListener('click',e=>{
   cards=cards.filter(c=>!S.sel.has(c.id));S.sel.clear();S.asking=false;
   S.view='project';S.pid=pid;S.tid='m1';toast(`已从 ${picked.length} 张卡片生成项目，还没花钱`);render();
  }
+ else if(d.stage){S.stage=d.stage;render();scrollTo(0,0)}
  else if(d.ep){S.open.has(d.ep)?S.open.delete(d.ep):S.open.add(d.ep);render()}
  else if(d.t){S.tid=d.t;render()}
  else if(d.start){runTask(d.start)}
